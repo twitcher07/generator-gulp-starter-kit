@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "Tyrel Witcher",
+      "authorEmail": "tyrel.witcher@gmail.com",
+      "authorUrl": "tyrelwitcher.com"
+    }
+  }
+}

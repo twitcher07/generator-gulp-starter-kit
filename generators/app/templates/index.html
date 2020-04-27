@@ -1,0 +1,153 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= appname %></title>
+
+    <link rel="manifest" href="site.webmanifest">
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <meta name="msapplication-TileColor" content="#fafafa">
+    <!-- Place favicon.ico in the root directory -->
+
+    <meta name="theme-color" content="#fafafa">
+
+    <link rel="stylesheet" href="/css/styles.css">
+
+    <!-- "Modernizr-like" javascript support check  -->
+    <script>document.classList.remove('no-js');document.classList.add('js');</script>
+  </head>
+  <body>
+    <!--[if IE]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <%_ if (includeBootstrap) { -%>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/"><%= appname %></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Dropdown
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="jumbotron">
+        <h1 class="display-3">'Allo, 'Allo!</h1>
+        <p class="lead">Always a pleasure scaffolding your apps.</p>
+        <p><a class="btn btn-lg btn-success" href="#">Splendid!</a></p>
+      </div>
+
+      <div class="row">
+
+        <div class="col-lg-6">
+          <h4>HTML5 Boilerplate</h4>
+          <p>HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.</p>
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Sass</h4>
+          <p>Sass is the most mature, stable, and powerful professional grade CSS extension language in the world.</p>
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Bootstrap</h4>
+          <p>Sleek, intuitive, and powerful mobile first front-end framework for faster and easier web development.</p>
+        </div>
+
+        <%_ if (includeTailwind) { -%>
+        <div class="col-lg-6">
+          <h4>Tailwind CSS <a href="https://tailwindcss.com/docs/installation/">[Documentation]</a></h4>
+          <p>A utility CSS framework.</p>
+        </div>
+        <%_ } -%>
+
+        <div class="col-lg-6">
+          <h4>jQuery</h4>
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Webpack <a href="https://v4.webpack.js.org/concepts/">[Documentation]</a></h4>
+          <p>Dependency package manager.</p>
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Babel.js <a href="https://babeljs.io/docs/en/">[Documentation]</a></h4>
+          <p>Use ES6 features now.</p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="p-3 bg-dark text-white">
+      <p>Just a helpful generator from <a href="http://tyrelwitcher.com">Tyrel Witcher</a>, based in Memphis, TN.</p>
+    </div>
+
+    <%_ } else { -%>
+    
+    <div style="max-width: 600px; margin-left: auto; margin-right: auto;">
+      <h1>'Allo, 'Allo!</h1>
+      <p>You now have</p>
+      <ul>
+        <%_ if (includeHTML) { -%>
+        <li>HTML5 Boilerplate</li>
+        <%_ } -%>
+        <li>Sass</li>
+        <%_ if (includeTailwind) { -%>
+        <li>TailWind CSS <a href="https://tailwindcss.com/docs/installation/">[Documentation]</a></li>
+        <%_ } -%>
+        <li>Webpack <a href="https://v4.webpack.js.org/concepts/">[Documentation]</a></li>
+        <li>Babel.js <a href="https://babeljs.io/docs/en/">[Documentation]</a></li>
+        <%_ if (includeJQuery) { -%>
+        <li>jQuery</li>
+        <%_ } -%>
+      </ul>
+    </div>
+    <%_ } -%>
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+      (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+      function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='https://www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+      ga('create','UA-XXXXX-X');ga('send','pageview');
+    </script>
+
+    <script src="/js/main.js"></script>
+  </body>
+</html>

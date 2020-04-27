@@ -1,0 +1,18 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+node_modules
+
+# Dotenv
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Composer
+vendor
+
+.tmp

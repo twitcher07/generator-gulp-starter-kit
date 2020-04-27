@@ -1,0 +1,81 @@
+{
+  "private": true,
+  "engines": {
+    "node": ">=4"
+  },
+  "dependencies": {
+    <%_ if (includeBootstrap) { -%>
+    "bootstrap": "^4.4.0",
+    <%_ } if (includeBootstrap || includeJQuery) { -%>
+    "jquery": "^3.4.1"<% if (includeBootstrap) { %>,<% } %>
+    <%_ } if (includeBootstrap) { -%>
+    "popper.js": "^1.15.0"
+    <%_ } -%>
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+     <%_ if (includeTailwind) { -%>
+    "@fullhuman/postcss-purgecss": "^2.1.2",
+    <%_ } -%>
+    "autoprefixer": "^9.7.6",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "browser-sync": "^2.26.7",
+    "cross-env": "^7.0.2",
+    "del": "^5.1.0",
+    "expose-loader": "^0.7.5",
+    "gulp": "^4.0.2",
+    "gulp-dependents": "^1.2.3",
+    "gulp-eslint": "^6.0.0",
+    "gulp-filter": "^6.0.0",
+    "gulp-if": "^3.0.0",
+    "gulp-imagemin": "^7.1.0",
+    "gulp-load-plugins": "^2.0.3",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^7.0.0",
+    "gulp-real-favicon": "^0.3.2",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-size": "^3.0.0",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-uglify": "^3.0.2",
+    "postcss-clean": "^1.1.0",
+    <%_ if (includeTailwind) { -%>
+    "tailwindcss": "^1.2.0",
+    <%_ } -%>
+    "webpack": "^4.42.1",
+    "webpack-stream": "^5.2.1"
+  },
+  "scripts": {
+    "postinstall": "gulp",
+    "serve:test": "cross-env NODE_ENV=test gulp serve",
+    "serve:dist": "cross-env NODE_ENV=production gulp serve",
+    "start": "gulp serve",
+    "build": "cross-env NODE_ENV=production gulp",
+    "test": "npm run serve:test",
+    "tasks": "gulp --tasks"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "Firefox ESR"
+  ],
+  "eslintConfig": {
+    "parserOptions": {
+      "sourceType": "module"
+    },
+    "env": {
+      "es6": true,
+      "node": true,
+      "browser": true<% if (includeJQuery || includeBootstrap) { %>,
+      "jquery": true<% } %>
+    },
+    "rules": {
+      "quotes": [
+        2,
+        "single"
+      ]
+    }
+  }
+}

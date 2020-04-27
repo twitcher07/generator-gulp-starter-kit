@@ -1,0 +1,32 @@
+<%_ if (includeTailwind) { -%>
+
+//---------------------------------
+// Tailwind Base
+//---------------------------------
+@tailwind base;
+
+
+//---------------------------------
+// Tailwind Components
+//---------------------------------
+@tailwind components;
+
+
+<% } if (includeBootstrap) { -%>
+@import 'node_modules/bootstrap/scss/bootstrap';
+
+<%_ } -%>
+//-------------------------------------
+// Insert your awesome styles here.
+//-------------------------------------
+.something-awesome {
+	color: magenta;
+}
+<%_ if(includeTailwind) { -%>
+
+
+//---------------------------------
+// Tailwind Utilities
+//---------------------------------
+@tailwind utilities;
+<%_ } -%>
