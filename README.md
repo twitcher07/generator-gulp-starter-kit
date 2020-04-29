@@ -1,9 +1,9 @@
 # generator-gulp-starter-kit [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync.
+> A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync. Options available for static html or to create a [roots/bedrock](https://roots.io/bedrock/) app using composer.
 
 ## Installation
 
-First, install [Yeoman](http://yeoman.io) and generator-gulp-starter-kit using [npm](https://www.npmjs.com/) (we assume you have pre-installed [node.js](https://nodejs.org/)).
+First, install [Yeoman](http://yeoman.io) and generator-gulp-starter-kit using [npm](https://www.npmjs.com/) (we assume you have pre-installed [node.js](https://nodejs.org/)). To use the [bedrock](https://roots.io/bedrock/) option, you must have [composer](https://getcomposer.org/) installed. 
 
 ```bash
 npm install -g yo

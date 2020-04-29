@@ -1,7 +1,7 @@
 {
   "name": "generator-gulp-starter-kit",
-  "version": "1.0.0",
-  "description": "A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync.",
+  "version": "1.0.1",
+  "description": "A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync. Options available for static html or to create a roots/bedrock app using composer.",
   "homepage": "",
   "author": {
     "name": "Tyrel Witcher",
