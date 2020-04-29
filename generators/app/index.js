@@ -25,6 +25,24 @@ module.exports = class extends Generator {
         default: this.appname
       },
       {
+        type: 'confirm',
+        name: 'includeBedrock',
+        message: 'Is this a bedrock wordpress project?',
+        default: false
+      },
+      {
+        type: 'input',
+        name: 'wordpressTemplateName',
+        message: 'What do you want to call your custom wordpress theme?',
+        default: answers => answers.projectName.toString().toLowerCase()
+                  .replace(/\s+/g, '-')           // Replace spaces with -
+                  .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+                  .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+                  .replace(/^-+/, '')             // Trim - from start of text
+                  .replace(/-+$/, ''),
+        when: answers => answers.includeBedrock
+      },
+      {
         type: 'checkbox',
         name: 'features',
         message: 'Which additional features would you like to include?',
@@ -45,7 +63,8 @@ module.exports = class extends Generator {
         type: 'confirm',
         name: 'includeHTML',
         message: 'Do you want to include an HTML boilerplate file?',
-        default: false
+        default: false,
+        when: answers => !answers.includeBedrock
       },
       {
         type: 'confirm',
@@ -60,6 +79,8 @@ module.exports = class extends Generator {
 
         // manually deal with the response, get back and store the results.
         // we change a bit this way of doing to automatically do this in the self.prompt() method.
+        this.includeBedrock = answers.includeBedrock;
+        this.wordpressTemplateName = answers.wordpressTemplateName;
         this.includeBootstrap = hasFeature('includeBootstrap');
         this.includeTailwind = hasFeature('includeTailwind');
         this.includeJQuery = answers.includeJQuery;
@@ -74,6 +95,8 @@ module.exports = class extends Generator {
       date: new Date().toISOString().split('T')[0],
       name: this.pkg.name,
       version: this.pkg.version,
+      includeBedrock: this.includeBedrock,
+      wordpressTemplateName: this.wordpressTemplateName,
       includeHTML: this.includeHTML,
       includeBootstrap: this.includeBootstrap,
       includeJQuery: this.includeJQuery,
@@ -107,6 +130,21 @@ module.exports = class extends Generator {
       mkdirp(item);
     });
 
+    if(this.includeBedrock) {
+
+      config.bedrock.dirsToCreate(this).forEach(item => {
+        mkdirp(item);
+      });
+      
+      config.bedrock.filesToCopy.forEach(file => {
+        copy(file.input, file.output);
+      });
+
+      config.bedrock.filesToRender(this).forEach(file => {
+        copyTpl(file.input, file.output, templateData);
+      });
+    }
+
     if (this.includeHTML) {
       copyTpl('index.html', 'src/index.html', templateData);
     }
@@ -120,6 +158,10 @@ module.exports = class extends Generator {
   }
 
   install() {
+    if (this.includeBedrock) {
+      this.spawnCommand('composer', ['install'])
+    }
+
     this.npmInstall();
   }
 };

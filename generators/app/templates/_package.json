@@ -5,7 +5,11 @@
   },
   "paths": {
     "srcFolder": "src/",
+    <%_ if (includeBedrock) { -%>
+    "distFolder": "web/app/themes/<%= wordpressTemplateName %>/static/"
+    <%_ } else { -%>
     "distFolder": "dist/"
+    <%_ } -%>
   },
   "dependencies": {
     <%_ if (includeBootstrap) { -%>

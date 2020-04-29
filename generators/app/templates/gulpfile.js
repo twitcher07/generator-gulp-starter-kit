@@ -12,7 +12,9 @@ const gulp                      = require('gulp'),
       autoprefixer              = require('autoprefixer'),
       webpack                   = require('webpack'),
       webpackStream             = require('webpack-stream'),
+      <%_ if (includeTailwind) { -%>
       purgecss                  = require('@fullhuman/postcss-purgecss'),
+      <%_ } -%>
       browserSync               = $.browserSync.create(),
 
       // Paths to source of assets
@@ -32,14 +34,10 @@ const gulp                      = require('gulp'),
       dist_img                  = path.join(dist_folder, '/images'),
       dist_font                 = path.join(dist_folder, '/fonts'),
       dist_html                 = path.join(dist_folder, '/**/*.{twig,html}'),
-      node_modules_folder       = './node_modules/',
-      dist_node_modules_folder  = path.join(dist_folder, '/node_modules'),
 
       templates_purgeCSS        = [
                                     path.join(src_folder, '/**/*.{twig,html}')
-                                  ],
-
-      node_dependencies         = Object.keys(pkg.dependencies || {});
+                                  ];
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -285,7 +283,7 @@ gulp.task('generate-favicon', function(done) {
         pictureAspect: 'noChange',
         themeColor: theme_color,
         manifest: {
-          name: '<%= appname =%>',
+          name: '<%= appname %>',
           startUrl: '/',
           display: 'standalone',
           orientation: 'notSet',

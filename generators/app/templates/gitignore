@@ -2,17 +2,38 @@
 .DS_Store
 Thumbs.db
 
-node_modules
+<%_ if (includeBedrock) { -%>
+# Application
+web/app/plugins/*
+!web/app/plugins/.gitkeep
+web/app/mu-plugins/*/
+web/app/upgrade
+web/app/uploads/*
+!web/app/uploads/.gitkeep
+
+# WordPress
+web/wp
+web/.htaccess
+<%_ } -%>
+
+# Logs
+*.log
 
 # Dotenv
 .env
 .env.*
 !.env.example
 
-# Logs
-*.log
-
 # Composer
-vendor
+/vendor
 
+<%_ if (includeBedrock) { -%>
+# WP-CLI
+wp-cli.local.yml
+<%_ } -%>
+
+# npm
+node_modules
+
+# temporary build files
 .tmp
