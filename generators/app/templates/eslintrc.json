@@ -56,12 +56,15 @@
         "no-useless-catch": 2,
         "no-useless-escape": 2,
         "no-with": 2,
+        "quotes": [ 1, "single"],
         "require-yield": 2,
         "use-isnan": 2,
         "valid-typeof": 2
     },
     "env": {
-        "browser": true<%_ if (includeJQuery) { -%>,
-        "jquery": true<%_ } -%>
+        "es6": true,
+        "browser": true,
+        "node": true<%_ if (includeJQuery) { -%>,
+        "jquery": true<%_ } %>
     }
 }

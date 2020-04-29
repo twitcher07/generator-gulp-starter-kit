@@ -50,7 +50,7 @@ module.exports = class extends Generator {
       {
         type: 'confirm',
         name: 'includeJQuery',
-        message: 'Would you like to include jQuery?',
+        message: 'Would you like to include jQuery(v 3.4)?',
         default: false,
         when: answers => !answers.features.includes('includeBootstrap')
       }

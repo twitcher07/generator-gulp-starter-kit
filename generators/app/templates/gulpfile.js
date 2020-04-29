@@ -3,32 +3,34 @@
 
 const $ = require('gulp-load-plugins')({ pattern: ['*'] });
 
+const pkg = require('./package.json');
+
 const gulp                      = require('gulp'),
       fs                        = require('fs'),
+      log                       = require('fancy-log'),
       path                      = require('path'),
-      autoprefixer              = require('gulp-autoprefixer'),
+      autoprefixer              = require('autoprefixer'),
       webpack                   = require('webpack'),
       webpackStream             = require('webpack-stream'),
+      purgecss                  = require('@fullhuman/postcss-purgecss'),
       browserSync               = $.browserSync.create(),
 
       // Paths to source of assets
-      src_folder                = 'src/',
+      src_folder                = pkg.paths.srcFolder,
       src_asset_scss            = path.join(src_folder, '/scss/**/*.scss'),
       src_asset_js              = path.join(src_folder, '/js/**/*.js'),
       src_asset_img             = path.join(src_folder, '/images/**/*.+(png|jpg|jpeg|gif|svg|ico)'),
       src_asset_font            = path.join(src_folder, '/fonts/**/*.{eot,svg,ttf,woff,woff2}'),
       src_asset_html            = path.join(src_folder, '/**/*.html'),
       // Add any other assets that just need to be copied over to dist folder
-      src_generic_assets        = [
-                                    path.join(src_folder, 'favicon260x260.png'),
-                                    path.join(src_folder, 'site.webmanifest'),
-                                  ],
+      src_generic_assets        = [],
 
       // Paths you want to output assets to
-      dist_folder               = 'dist/', // change to whatever root you want it to be.
+      dist_folder               = pkg.paths.distFolder, // change to whatever root you want it to be.
       dist_css                  = path.join(dist_folder, '/css'),
       dist_js                   = path.join(dist_folder, '/js'),
       dist_img                  = path.join(dist_folder, '/images'),
+      dist_font                 = path.join(dist_folder, '/fonts'),
       dist_html                 = path.join(dist_folder, '/**/*.{twig,html}'),
       node_modules_folder       = './node_modules/',
       dist_node_modules_folder  = path.join(dist_folder, '/node_modules'),
@@ -37,9 +39,14 @@ const gulp                      = require('gulp'),
                                     path.join(src_folder, '/**/*.{twig,html}')
                                   ],
 
-      node_dependencies         = Object.keys(require('./package.json').dependencies || {});
+      node_dependencies         = Object.keys(pkg.dependencies || {});
 
 const isProd = process.env.NODE_ENV === 'production';
+
+//for busting cache in serviceworker through version
+function makeid() {
+  return Math.random().toString(36).substr(2, 9);
+}
 
 const dist_generic_assets = [];
 
@@ -50,7 +57,7 @@ src_generic_assets.forEach((el) => {
 // Clean generated assets
 gulp.task('clean', (cb) => {
 
-  const all_dist = [dist_css, dist_js, dist_img, dist_html].concat(dist_generic_assets);
+  const all_dist = [dist_css, dist_js, dist_img, dist_font<%_ if (includeHTML) { -%>, dist_html<%_ } -%>].concat(dist_generic_assets);
 
   log(`Deleting Files: ${all_dist}`);
 
@@ -59,14 +66,42 @@ gulp.task('clean', (cb) => {
   cb();
 });
 
-gulp.task('generic-assets', () => {
-  return gulp.src(src_generic_assets, {
-    since: gulp.lastRun('generic-assets')
-  })
-    .pipe(gulp.dest(dist_folder))
+gulp.task('generic-assets', (cb) => {
+  if(src_generic_assets.length > 0) {
+    gulp.src(src_generic_assets, {
+      allowEmpty: true
+    })
+      .pipe(gulp.dest(dist_folder))
+      .pipe(browserSync.stream())
+  }
+  cb();
+});
+
+gulp.task('images', () => {
+  return gulp.src(src_asset_img, { since: gulp.lastRun('images') })
+    .pipe($.plumber())
+    .pipe($.imagemin({
+      progressive: true,
+      interlaced: true,
+
+      // don't remove IDs from SVGs, they are often used
+      // as hooks for embedding and styling
+      svgoPlugins: [{cleanupIDs: false}],
+      verbose: true
+    }))
+    .pipe($.size({showFiles: true}))
+    .pipe(gulp.dest(dist_img))
     .pipe(browserSync.stream());
 });
 
+gulp.task('fonts', () => {
+  return gulp.src(src_asset_font, {since: gulp.lastRun('fonts')})
+    .pipe($.plumber())
+    .pipe(gulp.dest(dist_font))
+    .pipe(browserSync.stream());
+});
+
+<%_ if (includeHTML) { -%>
 gulp.task('html', () => {
   return gulp.src(src_asset_html, {
       base: src_folder,
@@ -74,13 +109,14 @@ gulp.task('html', () => {
     })
     .pipe(gulp.dest(dist_folder));
 });
+<%_ } -%>
 
 gulp.task('inject-css-js', () => {
   const sources = gulp.src([path.join(dist_css, '**/*.css'), path.join(dist_js, '**/*.js')], {read: false});
 
   return gulp.src(dist_html)
     .pipe($.inject(sources, {
-      ignorePath: '/dist'
+      ignorePath: dist_folder
     }))
     .pipe(gulp.dest(dist_folder))
     .pipe(browserSync.stream());
@@ -117,6 +153,7 @@ gulp.task('postcss', () => {
 
   return gulp.src(['.tmp/css/**/*.*'])
     .pipe(f)
+    .pipe($.if(!isProd, $.sourcemaps.init()))
     .pipe($.postcss([
           <%_ if (includeTailwind) { -%>
           $.tailwindcss(),
@@ -125,20 +162,21 @@ gulp.task('postcss', () => {
           $.autoprefixer(),
           isProd ? $.postcssClean() : false
         ].filter(Boolean)))
+    .pipe($.if(!isProd, $.sourcemaps.write()))
     .pipe(f.restore)
     .pipe($.if(isProd, $.rename({ suffix: '.min' })))
-    .pipe($.size({gzip: true, showFiles: true}))
+    .pipe($.size({showFiles: true}))
     .pipe(gulp.dest(dist_css))
     .pipe(browserSync.stream());
 });
 
 gulp.task('sass', gulp.series(() => {
   return gulp.src(src_asset_scss, { since: gulp.lastRun('sass') })
-    .pipe($.sourcemaps.init())
+    .pipe($.if(!isProd, $.sourcemaps.init()))
       .pipe($.plumber())
       .pipe($.dependents())
       .pipe($.sass())
-    .pipe($.sourcemaps.write('.'))
+    .pipe($.if(!isProd, $.sourcemaps.write()))
     .pipe(gulp.dest('.tmp/css'))
 }, 'postcss'));
 
@@ -158,7 +196,7 @@ gulp.task('js', gulp.series('lint', () => {
       output: {
         filename: isProd ? '[name].min.js' : '[name].js'
       },
-      devtool: isProd ? false : 'inline-cheap-source-map',
+      devtool: isProd ? false : 'cheap-source-map',
       module: {
         rules: [
           { 
@@ -190,14 +228,15 @@ gulp.task('js', gulp.series('lint', () => {
     .pipe(browserSync.stream());
 }));
 
-gulp.task('images', () => {
-  return gulp.src(src_asset_img, { since: gulp.lastRun('images') })
-    .pipe($.plumber())
-    .pipe($.imagemin())
-    .pipe($.size({gzip: true, showFiles: true}))
-    .pipe(gulp.dest(dist_img))
-    .pipe(browserSync.stream());
+// service worker compile and copy
+gulp.task('service-worker', function () {
+  return gulp.src(path.join(src_folder, 'sw.js'))
+    .pipe($.replace(/@@pwa-version@@/gm, 'version-' + makeid()))
+    .pipe($.if(isProd, $.replace(/styles\.css/g, 'styles.min.css')))
+    .pipe($.if(isProd, $.replace(/main\.js/g, 'main.min.js')))
+    .pipe(gulp.dest(dist_folder))
 });
+
 
 // Generate the icons. This task takes a few seconds to complete.
 // You should run it at least once to create the icons. Then,
@@ -205,11 +244,14 @@ gulp.task('images', () => {
 // package (see the check-for-favicon-update task below).
 
 // File where the favicon markups are stored
-var FAVICON_DATA_FILE = 'faviconData.json';
+const favicon = path.join(src_folder, 'favicon260x260.png');
+const FAVICON_DATA_FILE = path.join(__dirname, 'faviconData.json');
+const theme_color = '#ffffff';
+const favicon_bg = '#da532c';
 
 gulp.task('generate-favicon', function(done) {
   $.realFavicon.generateFavicon({
-    masterPicture: src_folder + 'favicon260x260.png',
+    masterPicture: favicon,
     dest: dist_folder,
     iconsPath: '/',
     design: {
@@ -227,7 +269,7 @@ gulp.task('generate-favicon', function(done) {
       },
       windows: {
         pictureAspect: 'noChange',
-        backgroundColor: '#da532c',
+        backgroundColor: favicon_bg,
         onConflict: 'override',
         assets: {
           windows80Ie10Tile: false,
@@ -241,13 +283,14 @@ gulp.task('generate-favicon', function(done) {
       },
       androidChrome: {
         pictureAspect: 'noChange',
-        themeColor: '#ffffff',
+        themeColor: theme_color,
         manifest: {
+          name: '<%= appname =%>',
+          startUrl: '/',
           display: 'standalone',
           orientation: 'notSet',
-          existingManifest: $.realFavicon.escapeJSONSpecialChars(fs.readFileSync(path.join(src_folder, 'site.webmanifest'), 'utf8')),
           onConflict: 'override',
-          declared: false
+          declared: true
         },
         assets: {
           legacyIcon: false,
@@ -259,16 +302,13 @@ gulp.task('generate-favicon', function(done) {
       scalingAlgorithm: 'Mitchell',
       errorOnImageTooSmall: false,
       readmeFile: false,
-      htmlCodeFile: false,
+      htmlCodeFile: true,
       usePathAsIs: false
     },
     markupFile: FAVICON_DATA_FILE
   }, function() {
     // Patch the original manifest
-    gulp.src(path.join(src_folder, 'manifest.json')).pipe(gulp.dest(src_folder))
-      .on('finish', function() {
-        done();
-    });
+    done();
   });
 });
 
@@ -296,32 +336,40 @@ gulp.task('check-for-favicon-update', function(done) {
   done();
 });
 
+<%_ if (includeHTML) { -%>
 gulp.task('browser-sync', () => {
   return browserSync.init({
     server: {
-      baseDir: [ 'dist' ]
+      baseDir: [ dist_folder ]
     },
-    port: 3000,
-    open: false
+    port: 3000
   });
 });
+<%_ } -%>
 
 gulp.task('watch', () => {
   
   const watchVendor = [];
 
-  node_dependencies.forEach(dependency => {
-    watchVendor.push(node_modules_folder + dependency + '/**/*.*');
-  });
-
+  <%_ if (includeHTML) { -%>
   gulp.watch(src_asset_html, gulp.series('html', 'sass', 'inject-css-js')).on('change', browserSync.reload);
+  <%_ } -%>
   gulp.watch(src_asset_scss, gulp.series('sass')).on('change', browserSync.reload);
-  gulp.watch(src_asset_js, gulp.series('js')).on('change',browserSync.reload);
+  gulp.watch(src_asset_js, gulp.series('js')).on('change', browserSync.reload);
   gulp.watch(src_asset_img, gulp.series('images')).on('change', browserSync.reload);
+  gulp.watch(src_asset_font, gulp.series('fonts')).on('change', browserSync.reload);
 });
 
-gulp.task('build', gulp.series('clean', gulp.parallel('generic-assets', 'html', 'images', 'sass', 'js'), 'inject-css-js'));
+<%_ if (includeHTML) { -%>
+gulp.task('build', gulp.series('clean', gulp.parallel('generic-assets', 'html', 'service-worker', 'images', 'fonts', 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
 
-gulp.task('serve', gulp.series('build', gulp.parallel('browser-sync', 'watch')));
+gulp.task('serve', gulp.series('clean', gulp.parallel('generic-assets', 'html', 'images', 'fonts', 'sass', 'js'), 'inject-css-js', gulp.parallel('browser-sync', 'watch')));
 
 gulp.task('default', gulp.series('build'));
+<%_ } else { -%>
+gulp.task('build', gulp.series('clean', gulp.parallel('generic-assets', 'service-worker', 'images', 'fonts', 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
+
+gulp.task('serve', gulp.series('clean', gulp.parallel('generic-assets', 'images', 'fonts', 'sass', 'js'), 'inject-css-js', 'watch'));
+
+gulp.task('default', gulp.series('build'));
+<%_ } -%>

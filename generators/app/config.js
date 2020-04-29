@@ -12,6 +12,10 @@ module.exports = {
     {
       input: 'favicon260x260.png',
       output: 'src/favicon260x260.png'
+    },
+    {
+      input: 'sw.js',
+      output: 'src/sw.js'
     }
   ],
   filesToRender: [
@@ -28,16 +32,16 @@ module.exports = {
       output: 'package.json'
     },
     {
+      input: '_readme.md',
+      output: 'README.md'
+    },
+    {
       input: 'styles.scss',
       output: 'src/scss/styles.scss'
     },
     {
       input: 'main.js',
       output: 'src/js/main.js'
-    },
-    {
-      input: 'site.webmanifest',
-      output: 'src/site.webmanifest'
     }
   ]
 };
