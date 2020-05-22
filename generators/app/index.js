@@ -31,6 +31,13 @@ module.exports = class extends Generator {
         default: false
       },
       {
+        type: 'confirm',
+        name: 'includeHTML',
+        message: 'Is this a static HTML project? (This will include an HTML5 boilerplate file)',
+        default: false,
+        when: answers => !answers.includeBedrock
+      },
+      {
         type: 'input',
         name: 'wordpressTemplateName',
         message: 'What do you want to call your custom wordpress theme?',
@@ -58,13 +65,6 @@ module.exports = class extends Generator {
             checked: false
           }
         ]
-      },
-      {
-        type: 'confirm',
-        name: 'includeHTML',
-        message: 'Do you want to include an HTML boilerplate file?',
-        default: false,
-        when: answers => !answers.includeBedrock
       },
       {
         type: 'confirm',

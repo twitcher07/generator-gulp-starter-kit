@@ -1,0 +1,6 @@
+<%_ if (includeBootstrap) { -%>
+// Bootstrap mixins
+@import 'node_modules/bootstrap/scss/mixins';
+
+<%_ } -%>
+// Your mixins here

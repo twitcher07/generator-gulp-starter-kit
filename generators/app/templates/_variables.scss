@@ -1,0 +1,7 @@
+<%_ if (includeBootstrap) { -%>
+// Bootstrap variables
+@import 'node_modules/bootstrap/scss/variables';
+
+<%_ } -%>
+// Your custom variables
+$magenta: magenta;

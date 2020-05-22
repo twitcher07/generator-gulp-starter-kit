@@ -8,10 +8,16 @@
 # Installation requirements
 * Node.js (at least version 10)
 * NPM
+<%_ if (includeBedrock) { -%>
+* Composer
+<%_ } -%>
 * Gulp.js version 4
 
-# Build Tools & Frontend Assets
-## Tools for workflow:
+# Tools & Frontend Assets
+## What's included:
+<%_ if (includeBedrock) { -%>
+* Bedrocks by Roots - WordPress boilerplate with modern development tools [Documentation](https://roots.io/bedrock/)
+<%_ } -%>
 * Gulp 4 - [Documentation](https://gulpjs.com/docs/en/getting-started/quick-start)
 * Sass Compiling (using gulp-sass) - [Documentation](https://github.com/dlmanning/gulp-sass)
 * PostCSS (using gulp-postcss) - [Documentation](https://github.com/postcss/gulp-postcss)
@@ -78,10 +84,14 @@ Make sure variable `templates_purgeCSS` in `gulpfile.js` contains globs to the h
 ## Favicons
 Overwrite `src/favicon260x260.png` or change the variable `const favicon = path.join(src_folder, 'favicon260x260.png')` to point to the master image for generating the favicons. Master favicon image should be at least 260x260.
 
-Change these variables in `gulpfile.js` to match your site's design.
-```javascript
-const theme_color = '#ffffff';
-const favicon_bg = '#da532c';
+Change these variables in `package.json` to match your site's design.
+```json
+{
+	"favicon": {
+		"themeColor": "#ffffff",
+    	"backgroundColor": "#da532c"
+	}
+}
 ```
 
 # Build Commands
@@ -112,6 +122,21 @@ This is the production version of `gulp serve`. It creates the production versio
 <%_ if (includeTailwind) { -%>
 * Uses [purgeCSS](https://purgecss.com/) to remove unused CSS declarations. Which helps to drastically reduce the file size when using frameworks like tailwindCSS or bootstrap.
 <%_ } -%>
+
+## `npm run critical-css:dist`
+Make sure `paths.criticalPages` in `package.json` contains an object of the pages you want to generate critical css for.
+```json
+{
+	"paths": {
+		"criticalPages": {
+			// name for template 
+			// (no spaces or special characters)    // direct URL 
+			"name-of-template": 					<% if (includeBedrock) { %>"your-url.test"<% } else { %>"index.html"<% } %>
+		}
+	}
+}
+```
+After running command, CSS that should be inlined can be found in <%_ if (includeBedrock) { %>`web/app/themes/<%= wordpressTemplateName %>` <% } else { %>`dist/css/critical/`<% } %> folder.
 
 ## `npm run build`
 Builds out production version of frontend code.

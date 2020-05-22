@@ -40,6 +40,18 @@ module.exports = {
       output: 'src/scss/styles.scss'
     },
     {
+      input: '_variables.scss',
+      output: 'src/scss/_variables.scss'
+    },
+    {
+      input: '_mixins.scss',
+      output: 'src/scss/_mixins.scss'
+    },
+    {
+      input: '_functions.scss',
+      output: 'src/scss/_functions.scss'
+    },
+    {
       input: 'main.js',
       output: 'src/js/main.js'
     }

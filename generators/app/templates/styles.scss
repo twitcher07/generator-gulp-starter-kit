@@ -1,3 +1,7 @@
+@import 'functions';
+@import 'variables';
+@import 'mixins';
+
 <%_ if (includeTailwind) { -%>
 //---------------------------------
 // Tailwind Base
@@ -19,7 +23,7 @@
 // Insert your awesome styles here.
 //-------------------------------------
 .something-awesome {
-	color: magenta;
+	color: $magenta;
 }
 <%_ if(includeTailwind) { -%>
 

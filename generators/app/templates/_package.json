@@ -6,10 +6,21 @@
   "paths": {
     "srcFolder": "src/",
     <%_ if (includeBedrock) { -%>
-    "distFolder": "web/app/themes/<%= wordpressTemplateName %>/static/"
+    "distFolder": "web/app/themes/<%= wordpressTemplateName %>/static/",
     <%_ } else { -%>
-    "distFolder": "dist/"
+    "distFolder": "dist/",
     <%_ } -%>
+    "criticalPages": {
+        <%_ if (includeBedrock) { -%>
+        "home": "your-url.test"
+        <%_ } else { -%>
+        "home": "index.html"
+        <%_ } -%>
+    }
+  },
+  "favicon": {
+    "themeColor": "#ffffff",
+    "backgroundColor": "#da532c"
   },
   "dependencies": {
     <%_ if (includeBootstrap) { -%>
@@ -30,8 +41,10 @@
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "browser-sync": "^2.26.7",
+    "critical": "^1.3.9",
     "cross-env": "^7.0.2",
     "del": "^5.1.0",
+    "es6-promise-pool": "^2.5.0",
     "expose-loader": "^0.7.5",
     "fancy-log": "^1.3.3",
     "gulp": "^4.0.2",
@@ -55,6 +68,7 @@
     <%_ if (includeTailwind) { -%>
     "tailwindcss": "^1.2.0",
     <%_ } -%>
+    "through2": "^3.0.1",
     "webpack": "^4.42.1",
     "webpack-stream": "^5.2.1"
   },
@@ -63,6 +77,8 @@
     "serve:dist": "cross-env NODE_ENV=production gulp serve",
     "start": "gulp serve",
     "build": "cross-env NODE_ENV=production gulp",
+    "critical-css:dist": "cross-env NODE_ENV=production critical",
+    "critical-css": "cross-env NODE_EN=development critical",
     "tasks": "gulp --tasks"
   },
   "browserslist": [

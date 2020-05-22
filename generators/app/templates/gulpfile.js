@@ -7,6 +7,7 @@ const pkg = require('./package.json');
 
 const gulp                      = require('gulp'),
       fs                        = require('fs'),
+      through2                  = require('through2'),
       log                       = require('fancy-log'),
       path                      = require('path'),
       autoprefixer              = require('autoprefixer'),
@@ -16,6 +17,8 @@ const gulp                      = require('gulp'),
       purgecss                  = require('@fullhuman/postcss-purgecss'),
       <%_ } -%>
       browserSync               = $.browserSync.create(),
+      critical                  = require('critical'),
+      PromisePool               = require('es6-promise-pool'),
 
       // Paths to source of assets
       src_folder                = pkg.paths.srcFolder,
@@ -53,18 +56,16 @@ src_generic_assets.forEach((el) => {
 });
 
 // Clean generated assets
-gulp.task('clean', (cb) => {
+function clean() {
 
-  const all_dist = [dist_css, dist_js, dist_img, dist_font<%_ if (includeHTML) { -%>, dist_html<%_ } -%>].concat(dist_generic_assets);
+  const all_dist = [dist_css, dist_js, dist_img, dist_font].concat(dist_generic_assets);
 
-  log(`Deleting Files: ${all_dist}`);
+  log.warn(`Deleting: ${all_dist}`);
 
-  $.del(all_dist);
+  return $.del(all_dist);
+};
 
-  cb();
-});
-
-gulp.task('generic-assets', (cb) => {
+gulp.task('generic-assets', (done) => {
   if(src_generic_assets.length > 0) {
     gulp.src(src_generic_assets, {
       allowEmpty: true
@@ -72,7 +73,7 @@ gulp.task('generic-assets', (cb) => {
       .pipe(gulp.dest(dist_folder))
       .pipe(browserSync.stream())
   }
-  cb();
+  done();
 });
 
 gulp.task('images', () => {
@@ -92,12 +93,12 @@ gulp.task('images', () => {
     .pipe(browserSync.stream());
 });
 
-gulp.task('fonts', () => {
-  return gulp.src(src_asset_font, {since: gulp.lastRun('fonts')})
-    .pipe($.plumber())
-    .pipe(gulp.dest(dist_font))
-    .pipe(browserSync.stream());
-});
+function fonts(cb) {
+  gulp.src(src_asset_font, {since: gulp.lastRun('fonts')})
+    .pipe(gulp.dest(dist_font));
+
+  cb();
+}
 
 <%_ if (includeHTML) { -%>
 gulp.task('html', () => {
@@ -244,8 +245,8 @@ gulp.task('service-worker', function () {
 // File where the favicon markups are stored
 const favicon = path.join(src_folder, 'favicon260x260.png');
 const FAVICON_DATA_FILE = path.join(__dirname, 'faviconData.json');
-const theme_color = '#ffffff';
-const favicon_bg = '#da532c';
+const theme_color = pkg.favicon.themeColor;
+const favicon_bg = pkg.favicon.backgroundColor;
 
 gulp.task('generate-favicon', function(done) {
   $.realFavicon.generateFavicon({
@@ -335,19 +336,23 @@ gulp.task('check-for-favicon-update', function(done) {
 });
 
 <%_ if (includeHTML) { -%>
-gulp.task('browser-sync', () => {
-  return browserSync.init({
+gulp.task('browser-sync', (done) => {
+  browserSync.init({
     server: {
       baseDir: [ dist_folder ]
     },
     port: 3000
   });
+
+  done();
 });
 <%_ } -%>
 
-gulp.task('watch', () => {
+gulp.task('watch', (done) => {
   
   const watchVendor = [];
+
+  log('-> Watching files in /src folder...')
 
   <%_ if (includeHTML) { -%>
   gulp.watch(src_asset_html, gulp.series('html', 'sass', 'inject-css-js')).on('change', browserSync.reload);
@@ -356,18 +361,79 @@ gulp.task('watch', () => {
   gulp.watch(src_asset_js, gulp.series('js')).on('change', browserSync.reload);
   gulp.watch(src_asset_img, gulp.series('images')).on('change', browserSync.reload);
   gulp.watch(src_asset_font, gulp.series('fonts')).on('change', browserSync.reload);
+
+  done();
 });
 
 <%_ if (includeHTML) { -%>
-gulp.task('build', gulp.series('clean', gulp.parallel('generic-assets', 'html', 'service-worker', 'images', 'fonts', 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
+gulp.task('build', gulp.series(clean, gulp.parallel('generic-assets', 'html', 'service-worker', 'images', fonts, 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
 
-gulp.task('serve', gulp.series('clean', gulp.parallel('generic-assets', 'html', 'images', 'fonts', 'sass', 'js'), 'inject-css-js', gulp.parallel('browser-sync', 'watch')));
-
-gulp.task('default', gulp.series('build'));
+gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'html', 'images', fonts, 'sass', 'js'), 'inject-css-js', gulp.parallel('browser-sync', 'watch')));
 <%_ } else { -%>
-gulp.task('build', gulp.series('clean', gulp.parallel('generic-assets', 'service-worker', 'images', 'fonts', 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
+gulp.task('build', gulp.series(clean, gulp.parallel('generic-assets', 'service-worker', 'images', fonts, 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
 
-gulp.task('serve', gulp.series('clean', gulp.parallel('generic-assets', 'images', 'fonts', 'sass', 'js'), 'inject-css-js', 'watch'));
+gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'images', fonts, 'sass', 'js'), 'inject-css-js', 'watch'));
+<%_ } -%>
+
+// Pages to generate critical css from
+const criticalPages = pkg.paths.criticalPages;
+
+// Generate critical css based on path to pages
+gulp.task('critical', gulp.series(<% if (includeHTML) { %>'serve'<% } else { %>'build'<% } %>, function (cb) {
+
+  // constructing array out of list-object returned by config.yaml so I can pop each item.
+  var pages = Object.keys(criticalPages).map(function (val) {
+    return { key: val, url: criticalPages[val] };
+  });
+
+  // Modified example code from promiseProducer docs
+  var promiseProducer = function () {
+    const page = pages.pop();
+    if (!page) {
+      return null;
+    }
+
+    // critical.generate returns a Promise.
+    return critical.generate({
+      base: dist_folder,
+      src: page.url,
+      css: path.join(dist_css, () => isProd ? 'styles.min.css' : 'styles.css'),
+      styleTarget: dist_css + '/critical/' + page.key + '.css',
+      minify: true,
+      dimension: [{
+          // iPhone 6
+          width: 375,
+          height: 667
+        }, {
+          // iPhone 6+
+          width: 414,
+          height: 736
+        }, {
+          width: 1920,
+          height: 1080
+        }],
+      ignore: ['@font-face']
+    })
+  }
+
+  // The number of promises to process simultaneously.
+  var concurrency = 3
+
+  var pool = new PromisePool(promiseProducer, concurrency)
+
+  var poolPromise = pool.start();
+
+  poolPromise.then(function () {
+    console.log('All critical css files generated');
+    cb();
+  }, function (error) {
+    console.log('Failed to generate all/some critical css files: ' + error.message)
+  })
+
+}));
 
 gulp.task('default', gulp.series('build'));
-<%_ } -%>
+
+exports.fonts = fonts;
+exports.clean = clean;
+
