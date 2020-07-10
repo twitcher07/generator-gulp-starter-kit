@@ -79,6 +79,8 @@
     "build": "cross-env NODE_ENV=production gulp",
     "critical-css:dist": "cross-env NODE_ENV=production critical",
     "critical-css": "cross-env NODE_EN=development critical",
+    "frontend": "gulp sass js",
+    "frontend:dist": "cross-env NODE_ENV=production gulp sass js",
     "tasks": "gulp --tasks"
   },
   "browserslist": [

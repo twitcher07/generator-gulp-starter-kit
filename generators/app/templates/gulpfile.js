@@ -174,7 +174,7 @@ gulp.task('sass', gulp.series(() => {
     .pipe($.if(!isProd, $.sourcemaps.init()))
       .pipe($.plumber())
       .pipe($.dependents())
-      .pipe($.sass())
+      .pipe($.sass().on('error', $.sass.logError))
     .pipe($.if(!isProd, $.sourcemaps.write()))
     .pipe(gulp.dest('.tmp/css'))
 }, 'postcss'));
@@ -356,6 +356,9 @@ gulp.task('watch', (done) => {
 
   <%_ if (includeHTML) { -%>
   gulp.watch(src_asset_html, gulp.series('html', 'sass', 'inject-css-js')).on('change', browserSync.reload);
+  <%_ } -%>
+  <%_ if (includeTailwind) { -%>
+  gulp.watch('tailwind.config.js', gulp.series('postcss')).on('change', browserSync.reload);
   <%_ } -%>
   gulp.watch(src_asset_scss, gulp.series('sass')).on('change', browserSync.reload);
   gulp.watch(src_asset_js, gulp.series('js')).on('change', browserSync.reload);
