@@ -20,6 +20,9 @@ const gulp                      = require('gulp'),
       critical                  = require('critical'),
       PromisePool               = require('es6-promise-pool'),
 
+      // temporary folder
+      temp_folder               = '.tmp',
+
       // Paths to source of assets
       src_folder                = pkg.paths.srcFolder,
       src_asset_scss            = path.join(src_folder, '/scss/**/*.scss'),
@@ -39,8 +42,10 @@ const gulp                      = require('gulp'),
       dist_html                 = path.join(dist_folder, '/**/*.{twig,html}'),
 
       templates_purgeCSS        = [
-                                    path.join(src_folder, '/**/*.{twig,html}')
-                                  ];
+                                    './**/*.{twig,html}' // change path to be where your html or templates are.
+                                  ],
+
+      critical_css              = pkg.paths.criticalCss;
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -58,7 +63,7 @@ src_generic_assets.forEach((el) => {
 // Clean generated assets
 function clean() {
 
-  const all_dist = [dist_css, dist_js, dist_img, dist_font].concat(dist_generic_assets);
+  const all_dist = [dist_css, dist_js, dist_img, dist_font, temp_folder].concat(dist_generic_assets);
 
   log.warn(`Deleting: ${all_dist}`);
 
@@ -152,7 +157,7 @@ gulp.task('postcss', () => {
 
   return gulp.src(['.tmp/css/**/*.*'])
     .pipe(f)
-    .pipe($.if(!isProd, $.sourcemaps.init()))
+    .pipe($.if(!isProd, $.sourcemaps.init({loadMaps: true})))
     .pipe($.postcss([
           <%_ if (includeTailwind) { -%>
           $.tailwindcss(),
@@ -170,7 +175,7 @@ gulp.task('postcss', () => {
 });
 
 gulp.task('sass', gulp.series(() => {
-  return gulp.src(src_asset_scss, { since: gulp.lastRun('sass') })
+  return gulp.src(src_asset_scss)
     .pipe($.if(!isProd, $.sourcemaps.init()))
       .pipe($.plumber())
       .pipe($.dependents())
@@ -401,7 +406,7 @@ gulp.task('critical', gulp.series(<% if (includeHTML) { %>'serve'<% } else { %>'
       base: dist_folder,
       src: page.url,
       css: path.join(dist_css, () => isProd ? 'styles.min.css' : 'styles.css'),
-      styleTarget: dist_css + '/critical/' + page.key + '.css',
+      styleTarget: path.join(critical_css, page.key + '.css'),
       minify: true,
       dimension: [{
           // iPhone 6

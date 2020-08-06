@@ -7,12 +7,14 @@
     "srcFolder": "src/",
     <%_ if (includeBedrock) { -%>
     "distFolder": "web/app/themes/<%= wordpressTemplateName %>/static/",
+    "criticalCss": "./web/app/themes/<%= wordpressTemplateName %>/static/css/critical",
     <%_ } else { -%>
     "distFolder": "dist/",
+    "criticalCss": "./dist/css/critical",
     <%_ } -%>
     "criticalPages": {
         <%_ if (includeBedrock) { -%>
-        "home": "your-url.test"
+        "home": "http://your-url.test"
         <%_ } else { -%>
         "home": "index.html"
         <%_ } -%>
@@ -73,14 +75,14 @@
     "webpack-stream": "^5.2.1"
   },
   "scripts": {
+    "build": "cross-env NODE_ENV=production gulp",
+    "critical-css": "cross-env NODE_EN=development critical",
+    "critical-css:dist": "cross-env NODE_ENV=production critical",
+    "frontend": "gulp sass js",
+    "frontend:dist": "cross-env NODE_ENV=production gulp sass js",
     "serve": "cross-env NODE_ENV=development gulp serve", 
     "serve:dist": "cross-env NODE_ENV=production gulp serve",
     "start": "gulp serve",
-    "build": "cross-env NODE_ENV=production gulp",
-    "critical-css:dist": "cross-env NODE_ENV=production critical",
-    "critical-css": "cross-env NODE_EN=development critical",
-    "frontend": "gulp sass js",
-    "frontend:dist": "cross-env NODE_ENV=production gulp sass js",
     "tasks": "gulp --tasks"
   },
   "browserslist": [
