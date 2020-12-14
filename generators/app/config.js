@@ -12,6 +12,10 @@ module.exports = {
     {
       input: 'sw.js',
       output: 'src/sw.js'
+    },
+    {
+      input: 'src/js/modules/utilities.js',
+      output: 'src/js/modules/utilities.js'
     }
   ],
   filesToRender: [
@@ -20,7 +24,7 @@ module.exports = {
       output: '.gitignore'
     },
     {
-      input: 'eslintrc.json',
+      input: 'eslintrc.json.ejs',
       output: '.eslintrc'
     },
     {
@@ -52,7 +56,7 @@ module.exports = {
       output: 'src/scss/_functions.scss'
     },
     {
-      input: 'src/js/**/*.js.ejs',
+      input: 'src/js/main.js.ejs',
       output: 'src/js/main.js'
     }
   ],
@@ -134,7 +138,7 @@ module.exports = {
         output: `web/app/themes/${el.wordpressTemplateName}/style.css`
       },
       {
-        input: 'bedrock/web/app/themes',
+        input: 'bedrock/web/app/themes/timber-starter',
         output: `web/app/themes/${el.wordpressTemplateName}`
       },
     ] 

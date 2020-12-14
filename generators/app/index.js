@@ -1,5 +1,6 @@
 'use strict';
 const Generator = require('yeoman-generator');
+const path = require('path');
 const chalk = require('chalk');
 const yosay = require('yosay');
 const mkdirp = require('mkdirp');
@@ -13,6 +14,18 @@ module.exports = class extends Generator {
 
   prompting() {
 
+    // Branding
+    this.log(`
+      -----------------------------------------------------------------------------          
+                                                                                                          
+      Version  :   ${this.pkg.version}
+      Author   :   ${this.pkg.author.name}                                                   
+      Website  :   ${this.pkg.author.url}                                         
+      Github   :   ${this.pkg.repository.url}          
+                                                                                  
+      -----------------------------------------------------------------------------          
+    `);
+    
     // Have Yeoman greet the user.
     this.log(
       yosay(`Welcome to the finest ${chalk.red('gulp-starter-kit')} generator!`)
@@ -22,14 +35,13 @@ module.exports = class extends Generator {
       {
         type: 'input',
         name: 'projectName',
-        message: 'What do you want to name this project? (no spaces allowed)',
+        message: `What do you want to name this project? ${chalk.yellow('(no special characters allowed)')}`,
         default: this.appname,
         validate(input) {
           // Do async stuff
-          if (input.indexOf(' ') >= 0 || /[~`!#$%^&*+=[\]\\';,/{}|\\":<>?]/g.test(input)) {
+          if (/[~`!#$%^&*+=[\]\\';,/{}|\\":<>?]/g.test(input)) {
               // Pass the return value in the done callback
-              return `${chalk.styles.red.open}
-                No whitespaces or special-chars allowed!${chalk.styles.red.close}`;
+              return chalk.bgRed.white('No special characters allowed!');
           }
             return true;
         }
@@ -67,6 +79,22 @@ module.exports = class extends Generator {
         when: answers => answers.projectType.includes('bedrock')
       },
       {
+        type: 'input',
+        name: 'craftSiteName',
+        message: 'What do you want to call your Craft site?',
+        default: this.appname,
+        when: answers => answers.projectType.includes('craft')
+      },
+      {
+        type: 'input',
+        name: 'siteUrl',
+        message: 'What is the url for the site?',
+        default() {
+          return `http://${path.basename(process.cwd())}.test`;
+        },
+        when: answers => answers.projectType.includes('craft') || answers.projectType.includes('bedrock')
+      },
+      {
         type: 'checkbox',
         name: 'features',
         message: 'Which additional features would you like to include?',
@@ -102,9 +130,9 @@ module.exports = class extends Generator {
       }
     ]).then(answers => {
         this.projectType = answers.projectType;
-        this.includeBedrock = answers.includeBedrock;
         this.wordpressTemplateName = answers.wordpressTemplateName;
-        this.includeHTML = answers.includeHTML;
+        this.craftSiteName = answers.craftSiteName;
+        this.siteUrl = answers.siteUrl;
 
         const features = answers.features;
         const hasFeature = feat => features && features.includes(feat);
@@ -114,24 +142,32 @@ module.exports = class extends Generator {
         this.includeBootstrap = hasFeature('includeBootstrap');
         this.includeTailwind = hasFeature('includeTailwind');
         this.includeAlpine = hasFeature('includeAlpine');
+        this.includeLazyload = hasFeature('includeLazyload');
         this.includeJQuery = answers.includeJQuery;
         this.projectName = answers.projectName;
       });
     }
 
   writing() {
+    const pkgJson = {
+      dependencies: {},
+      devDependencies: {}
+    };
+
     const templateData = {
       appname: this.projectName,
       date: new Date().toISOString().split('T')[0],
       name: this.pkg.name,
       version: this.pkg.version,
-      includeBedrock: this.includeBedrock,
+      projectType: this.projectType,
       wordpressTemplateName: this.wordpressTemplateName,
-      includeHTML: this.includeHTML,
+      craftSiteName: this.craftSiteName,
+      siteUrl: this.siteUrl,
       includeBootstrap: this.includeBootstrap,
       includeJQuery: this.includeJQuery,
       includeTailwind: this.includeTailwind,
-      includeAlpine: this.includeAlpine
+      includeAlpine: this.includeAlpine,
+      includeLazyload: this.includeLazyload
     };
 
     const copy = (input, output) => {
@@ -161,7 +197,7 @@ module.exports = class extends Generator {
       mkdirp(item);
     });
 
-    if(this.includeBedrock) {
+    if(this.projectType === 'bedrock') {
 
       config.bedrock.dirsToCreate(this).forEach(item => {
         mkdirp(item);
@@ -176,20 +212,43 @@ module.exports = class extends Generator {
       });
     }
 
-    if (this.includeHTML) {
+    if (this.projectType === 'html') {
       copyTpl('index.html', 'src/index.html', templateData);
     }
 
+    if (this.includeBootstrap) {
+      pkgJson.dependencies = {
+        bootstrap: '^4.4.0',
+        'popper.js': '^1.15.0',
+        jquery: '^3.4.1'
+      }
+    }
+    
+    if (this.includeJQuery) {
+      pkgJson.dependencies.jquery = '^3.4.1';
+    }
+
+    if (this.includeAlpine) {
+      pkgJson.dependencies.alpinejs = '^2.7.1';
+    }
+
+    if(this.includeLazyload) {
+      pkgJson.dependencies['vanilla-lazyload'] = '^17.1.3';
+    }
+
     if (this.includeTailwind) {
+      pkgJson.devDependencies['gulp-tailwindcss-export-config'] = '^1.0.1';
+      pkgJson.devDependencies.tailwindcss = '^2.0.1';
+
       copy('tailwind.config.js', 'tailwind.config.js');
     }
 
-    let cssFile = 'styles.scss';
-    copyTpl(cssFile, `src/scss/${cssFile}`, templateData);
+    this.fs.extendJSON(this.destinationPath('package.json'), pkgJson);
+  
   }
 
   install() {
-    if (this.includeBedrock) {
+    if (this.projectType === 'bedrock') {
       this.spawnCommand('composer', ['install'])
     }
 

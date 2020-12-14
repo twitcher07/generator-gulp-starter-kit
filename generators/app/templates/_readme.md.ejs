@@ -8,14 +8,14 @@
 # Installation requirements
 * Node.js (at least version 10)
 * NPM
-<%_ if (includeBedrock) { -%>
+<%_ if (projectType === 'bedrock') { -%>
 * Composer
 <%_ } -%>
 * Gulp.js version 4
 
 # Tools & Frontend Assets
 ## What's included:
-<%_ if (includeBedrock) { -%>
+<%_ if (projectType === 'bedrock') { -%>
 * Bedrocks by Roots - WordPress boilerplate with modern development tools [Documentation](https://roots.io/bedrock/)
 <%_ } -%>
 * Gulp 4 - [Documentation](https://gulpjs.com/docs/en/getting-started/quick-start)
@@ -24,7 +24,7 @@
 * Babel.js - [Documentation](https://babeljs.io/docs/en/)
 * ESlint (using gulp-eslint) - [Documentation](https://github.com/adametry/gulp-eslint#readme)
 * Webpack 4 (for javascript dependencies) - [Documentation](https://v4.webpack.js.org/concepts/)
-<%_ if (includeHTML) { -%>
+<%_ if (projectType === 'html') { -%>
 * BrowserSync - [Documentation](https://www.browsersync.io/docs)
 <%_ } -%>
 * Minification of CSS and JS for production use (using [clean-css](https://github.com/jakubpawlowicz/clean-css) and Webpack's built in optimization of ['production' mode](https://v4.webpack.js.org/configuration/mode/))
@@ -100,7 +100,7 @@ Probably the go-to command for development.
 
 This compiles sass (and runs any postcss plugins), lints javascript, builds webpack, optimizes images, copies fonts, injects the link to CSS and javascript sources, and outputs all frontend files to the `distFolder`. 
 
-<%_ if (includeHTML) { -%>
+<%_ if (projectType === 'html') { -%>
 Also, it spins up a static server using browsersync. Frontend of the site can be accessed at http:localhost:3000.
 <%_ } -%>
 
@@ -131,12 +131,12 @@ Make sure `paths.criticalPages` in `package.json` contains an object of the page
 		"criticalPages": {
 			// name for template 
 			// (no spaces or special characters)    // direct URL 
-			"name-of-template": 					<% if (includeBedrock) { %>"your-url.test"<% } else { %>"index.html"<% } %>
+			"name-of-template": 					<% if (projectType === 'bedrock') { %>"your-url.test"<% } else { %>"index.html"<% } %>
 		}
 	}
 }
 ```
-After running command, CSS that should be inlined can be found in <%_ if (includeBedrock) { %>`web/app/themes/<%= wordpressTemplateName %>` <% } else { %>`dist/css/critical/`<% } %> folder.
+After running command, CSS that should be inlined can be found in <%_ if (projectType === 'bedrock') { %>`web/app/themes/<%= wordpressTemplateName %>` <% } else { %>`dist/css/critical/`<% } %> folder.
 
 ## `npm run build`
 Builds out production version of frontend code.

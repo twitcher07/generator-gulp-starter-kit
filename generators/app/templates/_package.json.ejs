@@ -5,15 +5,16 @@
   },
   "paths": {
     "srcFolder": "src/",
-    <%_ if (includeBedrock) { -%>
+    <%_ if (projectType === 'bedrock') { -%>
     "distFolder": "web/app/themes/<%= wordpressTemplateName %>/static/",
     "criticalCss": "./web/app/themes/<%= wordpressTemplateName %>/static/css/critical",
+    <%_ } else if(projectType === 'craft') { -%> 
     <%_ } else { -%>
     "distFolder": "dist/",
     "criticalCss": "./dist/css/critical",
     <%_ } -%>
     "criticalPages": {
-        <%_ if (includeBedrock) { -%>
+        <%_ if (projectType === 'bedrock') { -%>
         "home": "http://your-url.test"
         <%_ } else { -%>
         "home": "index.html"
@@ -25,23 +26,10 @@
     "backgroundColor": "#da532c"
   },
   "dependencies": {
-    <%_ if (includeAlpine) { -%>
-    "alpinejs": "^2.7.1",
-    <%_ } -%>
-    <%_ if (includeBootstrap) { -%>
-    "bootstrap": "^4.4.0",
-    <%_ } if (includeBootstrap || includeJQuery) { -%>
-    "jquery": "^3.4.1"<% if (includeBootstrap) { %>,<% } %>
-    <%_ } if (includeBootstrap) { -%>
-    "popper.js": "^1.15.0"
-    <%_ } -%>
   },
   "devDependencies": {
     "@babel/core": "^7.8.7",
     "@babel/preset-env": "^7.8.7",
-    <%_ if (includeTailwind) { -%>
-    "@fullhuman/postcss-purgecss": "^2.1.2",
-    <%_ } -%>
     "autoprefixer": "^10.0.4",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
@@ -68,14 +56,8 @@
     "gulp-sass": "^4.0.2",
     "gulp-size": "^3.0.0",
     "gulp-sourcemaps": "^2.6.5",
-    <%_ if (includeTailwind) { -%>
-    "gulp-tailwindcss-export-config": "^1.0.1",
-    <%_ } -%>
     "gulp-uglify": "^3.0.2",
     "postcss-clean": "^1.1.0",
-    <%_ if (includeTailwind) { -%>
-    "tailwindcss": "^2.0.1",
-    <%_ } -%>
     "through2": "^3.0.1",
     "webpack": "^4.42.1",
     "webpack-stream": "^5.2.1"

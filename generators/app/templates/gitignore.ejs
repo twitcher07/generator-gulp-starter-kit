@@ -2,7 +2,7 @@
 .DS_Store
 Thumbs.db
 
-<%_ if (includeBedrock) { -%>
+<%_ if (projectType === 'bedrock') { -%>
 # Application
 web/app/plugins/*
 !web/app/plugins/.gitkeep
@@ -27,7 +27,7 @@ web/.htaccess
 # Composer
 /vendor
 
-<%_ if (includeBedrock) { -%>
+<%_ if (projectType === 'bedrock') { -%>
 # WP-CLI
 wp-cli.local.yml
 <%_ } -%>
@@ -39,6 +39,6 @@ node_modules
 .tmp
 
 # Ignore frontend files that are part of `gulp build` process
-<%_ if (includeBedrock) { -%>
+<%_ if (projectType === 'bedrock') { -%>
 web/app/theme/<%= wordpressTemplateName %>/static
 <%_ } -%>
