@@ -20,7 +20,7 @@
     <!-- endinject -->
 
     <!-- "Modernizr-like" javascript support check  -->
-    <script>document.classList.remove('no-js');document.classList.add('js');</script>
+    <script>(function(){document.getElementsByTagName( 'html' )[0].classList.remove('no-js');document.getElementsByTagName( 'html' )[0].classList.add('js');})();</script>
   </head>
   <body>
     <!--[if IE]>

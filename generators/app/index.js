@@ -12,6 +12,7 @@ module.exports = class extends Generator {
   }
 
   prompting() {
+
     // Have Yeoman greet the user.
     this.log(
       yosay(`Welcome to the finest ${chalk.red('gulp-starter-kit')} generator!`)
@@ -21,21 +22,37 @@ module.exports = class extends Generator {
       {
         type: 'input',
         name: 'projectName',
-        message: 'What do you want to name this project?',
-        default: this.appname
+        message: 'What do you want to name this project? (no spaces allowed)',
+        default: this.appname,
+        validate(input) {
+          // Do async stuff
+          if (input.indexOf(' ') >= 0 || /[~`!#$%^&*+=[\]\\';,/{}|\\":<>?]/g.test(input)) {
+              // Pass the return value in the done callback
+              return `${chalk.styles.red.open}
+                No whitespaces or special-chars allowed!${chalk.styles.red.close}`;
+          }
+            return true;
+        }
       },
       {
-        type: 'confirm',
-        name: 'includeBedrock',
-        message: 'Is this a bedrock wordpress project?',
-        default: false
-      },
-      {
-        type: 'confirm',
-        name: 'includeHTML',
-        message: 'Is this a static HTML project? (This will include an HTML5 boilerplate file)',
-        default: false,
-        when: answers => !answers.includeBedrock
+        type: 'list',
+        name: 'projectType',
+        message: 'Which type of project is this?',
+        choices: [
+          {
+            name: `Craft CMS ${chalk.magenta('(https://craftcms.com/docs/3.x/)')}`,
+            value: 'craft'
+          },
+          {
+            name: `Bedrock Wordpress ${chalk.magenta('(https://roots.io/bedrock/)')}`,
+            value: 'bedrock'
+          },
+          {
+            name: 'Static HTML',
+            value: 'html'
+          },
+        ],
+        default: 'html'
       },
       {
         type: 'input',
@@ -47,7 +64,7 @@ module.exports = class extends Generator {
                   .replace(/\-\-+/g, '-')         // Replace multiple - with single -
                   .replace(/^-+/, '')             // Trim - from start of text
                   .replace(/-+$/, ''),
-        when: answers => answers.includeBedrock
+        when: answers => answers.projectType.includes('bedrock')
       },
       {
         type: 'checkbox',
@@ -55,15 +72,25 @@ module.exports = class extends Generator {
         message: 'Which additional features would you like to include?',
         choices: [
           {
-            name: 'Bootstrap',
+            name: `Vanilla Lazyload Javascript ${chalk.magenta('(https://github.com/verlok/vanilla-lazyload)')}`,
+            value: 'includeLazyload',
+            checked: false
+          },
+          {
+            name: `Bootstrap - ${chalk.magenta('v4.4.0')}`,
             value: 'includeBootstrap',
             checked: false
           },
           {
-            name: 'Tailwind CSS',
+            name: `Alpine.js ${chalk.magenta('(https://github.com/alpinejs/alpine)')}`,
+            value: 'includeAlpine',
+            checked: true
+          },
+          {
+            name: `Tailwind CSS - ${chalk.magenta('v2.0.1 (https://github.com/tailwindlabs/tailwindcss/tree/v2.0.1)')}`,
             value: 'includeTailwind',
-            checked: false
-          }
+            checked: true
+          },
         ]
       },
       {
@@ -74,17 +101,20 @@ module.exports = class extends Generator {
         when: answers => !answers.features.includes('includeBootstrap')
       }
     ]).then(answers => {
+        this.projectType = answers.projectType;
+        this.includeBedrock = answers.includeBedrock;
+        this.wordpressTemplateName = answers.wordpressTemplateName;
+        this.includeHTML = answers.includeHTML;
+
         const features = answers.features;
         const hasFeature = feat => features && features.includes(feat);
 
         // manually deal with the response, get back and store the results.
         // we change a bit this way of doing to automatically do this in the self.prompt() method.
-        this.includeBedrock = answers.includeBedrock;
-        this.wordpressTemplateName = answers.wordpressTemplateName;
         this.includeBootstrap = hasFeature('includeBootstrap');
         this.includeTailwind = hasFeature('includeTailwind');
+        this.includeAlpine = hasFeature('includeAlpine');
         this.includeJQuery = answers.includeJQuery;
-        this.includeHTML = answers.includeHTML;
         this.projectName = answers.projectName;
       });
     }
@@ -100,7 +130,8 @@ module.exports = class extends Generator {
       includeHTML: this.includeHTML,
       includeBootstrap: this.includeBootstrap,
       includeJQuery: this.includeJQuery,
-      includeTailwind: this.includeTailwind
+      includeTailwind: this.includeTailwind,
+      includeAlpine: this.includeAlpine
     };
 
     const copy = (input, output) => {

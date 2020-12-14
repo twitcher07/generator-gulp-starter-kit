@@ -16,7 +16,7 @@ module.exports = {
   ],
   filesToRender: [
     {
-      input: 'gitignore',
+      input: 'gitignore.ejs',
       output: '.gitignore'
     },
     {
@@ -24,35 +24,35 @@ module.exports = {
       output: '.eslintrc'
     },
     {
-      input: 'gulpfile.js',
+      input: 'gulpfile.js.ejs',
       output: 'gulpfile.js'
     },
     {
-      input: '_package.json',
+      input: '_package.json.ejs',
       output: 'package.json'
     },
     {
-      input: '_readme.md',
+      input: '_readme.md.ejs',
       output: 'README.md'
     },
     {
-      input: 'styles.scss',
+      input: 'styles.scss.ejs',
       output: 'src/scss/styles.scss'
     },
     {
-      input: '_variables.scss',
+      input: '_variables.scss.ejs',
       output: 'src/scss/_variables.scss'
     },
     {
-      input: '_mixins.scss',
+      input: '_mixins.scss.ejs',
       output: 'src/scss/_mixins.scss'
     },
     {
-      input: '_functions.scss',
+      input: '_functions.scss.ejs',
       output: 'src/scss/_functions.scss'
     },
     {
-      input: 'main.js',
+      input: 'src/js/**/*.js.ejs',
       output: 'src/js/main.js'
     }
   ],
@@ -124,10 +124,6 @@ module.exports = {
         output: 'web/app/plugins/.gitkeep'
       },
       {
-        input: 'bedrock/web/app/themes/.gitkeep',
-        output: 'web/app/themes/.gitkeep'
-      },
-      {
         input: 'bedrock/web/app/uploads/.gitkeep',
         output: 'web/app/uploads/.gitkeep'
       }
@@ -136,7 +132,11 @@ module.exports = {
       {
         input: 'bedrock/style.css',
         output: `web/app/themes/${el.wordpressTemplateName}/style.css`
-      }
+      },
+      {
+        input: 'bedrock/web/app/themes',
+        output: `web/app/themes/${el.wordpressTemplateName}`
+      },
     ] 
   }
 };

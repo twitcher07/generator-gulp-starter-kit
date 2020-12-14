@@ -1,12 +1,12 @@
 {
   "name": "generator-gulp-starter-kit",
   "version": "1.2.2",
-  "description": "A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync. Options available for static html or to create a roots/bedrock app using composer.",
+  "description": "A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync. Options available for static html, roots/bedrock app using composer, or install Craft CMS v3.",
   "homepage": "",
   "author": {
     "name": "Tyrel Witcher",
     "email": "tyrel.witcher@gmail.com",
-    "url": "tyrelwitcher.com"
+    "url": "https://tyrelwitcher.com"
   },
   "files": [
     "generators"
@@ -20,16 +20,16 @@
     "yeoman-generator"
   ],
   "devDependencies": {
-    "yeoman-test": "^1.7.0",
-    "yeoman-assert": "^3.1.0",
     "eslint": "^6.6.0",
-    "prettier": "^1.19.1",
-    "husky": "^3.0.9",
-    "lint-staged": "^9.4.3",
     "eslint-config-prettier": "^6.6.0",
-    "eslint-plugin-prettier": "^3.1.1",
     "eslint-config-xo": "^0.27.2",
-    "jest": "^24.8.0"
+    "eslint-plugin-prettier": "^3.1.1",
+    "husky": "^3.0.9",
+    "jest": "^24.8.0",
+    "lint-staged": "^9.4.3",
+    "prettier": "^1.19.1",
+    "yeoman-assert": "^3.1.0",
+    "yeoman-test": "^1.7.0"
   },
   "engines": {
     "npm": ">= 4.0.0"

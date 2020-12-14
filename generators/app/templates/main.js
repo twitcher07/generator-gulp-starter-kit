@@ -7,6 +7,23 @@ import 'popper.js';
 import 'bootstrap';
 <%_ } -%>
 
+<%_ if (includeAlpine) { -%>
+// Alpine.js
+import 'alpinejs';
+<%_ } -%>
+<%_ if (includeLazyload) { -%>
+// Lazy load images
+import Lazyload from 'vanilla-lazyload';
+<%_ } -%>
+
+<%_ if (includeLazyload) { -%>
+// Create Lazy load instance
+var lazyLoadInstance = new Lazyload({
+    elements_selector: '.lazy'
+    // ... more custom settings?
+});
+<%_ } -%>
+
 console.log('Hello World 😎');
 
 // Example of Babel.js transpiling

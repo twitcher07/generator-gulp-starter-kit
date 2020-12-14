@@ -37,3 +37,8 @@ node_modules
 
 # temporary build files
 .tmp
+
+# Ignore frontend files that are part of `gulp build` process
+<%_ if (includeBedrock) { -%>
+web/app/theme/<%= wordpressTemplateName %>/static
+<%_ } -%>

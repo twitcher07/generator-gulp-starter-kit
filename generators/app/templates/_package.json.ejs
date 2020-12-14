@@ -25,6 +25,9 @@
     "backgroundColor": "#da532c"
   },
   "dependencies": {
+    <%_ if (includeAlpine) { -%>
+    "alpinejs": "^2.7.1",
+    <%_ } -%>
     <%_ if (includeBootstrap) { -%>
     "bootstrap": "^4.4.0",
     <%_ } if (includeBootstrap || includeJQuery) { -%>
@@ -39,7 +42,7 @@
     <%_ if (includeTailwind) { -%>
     "@fullhuman/postcss-purgecss": "^2.1.2",
     <%_ } -%>
-    "autoprefixer": "^9.7.6",
+    "autoprefixer": "^10.0.4",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "browser-sync": "^2.26.7",
@@ -58,17 +61,20 @@
     "gulp-inject": "^5.0.5",
     "gulp-load-plugins": "^2.0.3",
     "gulp-plumber": "^1.2.1",
-    "gulp-postcss": "^7.0.0",
+    "gulp-postcss": "^9.0.0",
     "gulp-real-favicon": "^0.3.2",
     "gulp-rename": "^2.0.0",
     "gulp-replace": "^1.0.0",
     "gulp-sass": "^4.0.2",
     "gulp-size": "^3.0.0",
     "gulp-sourcemaps": "^2.6.5",
+    <%_ if (includeTailwind) { -%>
+    "gulp-tailwindcss-export-config": "^1.0.1",
+    <%_ } -%>
     "gulp-uglify": "^3.0.2",
     "postcss-clean": "^1.1.0",
     <%_ if (includeTailwind) { -%>
-    "tailwindcss": "^1.2.0",
+    "tailwindcss": "^2.0.1",
     <%_ } -%>
     "through2": "^3.0.1",
     "webpack": "^4.42.1",
@@ -76,7 +82,7 @@
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production gulp",
-    "critical-css": "cross-env NODE_EN=development critical",
+    "critical-css": "cross-env NODE_ENV=development critical",
     "critical-css:dist": "cross-env NODE_ENV=production critical",
     "frontend": "gulp sass js",
     "frontend:dist": "cross-env NODE_ENV=production gulp sass js",

@@ -73,7 +73,8 @@ function clean() {
 gulp.task('generic-assets', (done) => {
   if(src_generic_assets.length > 0) {
     gulp.src(src_generic_assets, {
-      allowEmpty: true
+      allowEmpty: true,
+      base: src_folder
     })
       .pipe(gulp.dest(dist_folder))
       .pipe(browserSync.stream())
