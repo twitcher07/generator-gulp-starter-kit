@@ -1,3 +1,6 @@
+const pkg = require('./package.json');
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
     theme: {
         extend: {
@@ -70,6 +73,10 @@ module.exports = {
         },
 
         spacing: {
+            '4:3': '75%',
+            '16:9': '56.25%',
+            '1/2': '50%',
+            'full': '100%',
             '0'  : '0',
             '1px' : '1px',
             '2px' : '2px',
@@ -77,11 +84,17 @@ module.exports = {
             '10px' : '10px',
             'p25': '0.25rem',
             'p5' : '0.5rem',
+            'p65': '0.65rem',
             'p75': '0.75rem',
             '1'  : '1rem',
+            '1p25': '1.25rem',
+            '1p5': '1.5rem',
             '2'  : '2rem',
+            '3'  : '3rem',
             '4'  : '4rem',
+            '6'  : '6rem',
             '8'  : '8rem',
+            '10' : '10rem',
             '16' : '16rem',
             '24' : '24rem',
             '32' : '32rem',
@@ -94,6 +107,10 @@ module.exports = {
         },
 
         fontSize: {
+            '15px': '15px',
+            'p65' : '.65rem',
+            'p75' : '.75rem',
+            'p875' : '.875rem',
             '1'  : '1rem',
             '1p2': '1.2rem',
             '1p4': '1.4rem',
@@ -112,6 +129,7 @@ module.exports = {
             '10'  : '10rem',
         },
         translate: {
+            '0': '0',
             '1px': '1px',
             '-1px': '-1px',
             '2px': '2px',
@@ -141,8 +159,9 @@ module.exports = {
         },
     },
     variants: {
-        translate: ['responsive', 'hover'],
+        translate: ['responsive', 'hover', 'group-hover'],
     },
     plugins: [
-    ]
+    ],
+    purge: pkg.paths.purgeFiles
 }

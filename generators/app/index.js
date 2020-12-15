@@ -2,6 +2,7 @@
 const Generator = require('yeoman-generator');
 const path = require('path');
 const _ = require('lodash');
+const crypto = require('crypto');
 const chalk = require('chalk');
 const yosay = require('yosay');
 const mkdirp = require('mkdirp');
@@ -15,6 +16,18 @@ function validURL(str) {
     '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
     '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
   return !!pattern.test(str);
+}
+
+var getRandomChar = function () {
+
+  var minChar = 33; // !
+  var maxChar = 126; // ~
+  var char = String.fromCharCode(crypto.randomInt(minChar, maxChar));
+  if (["'", "\"", "\\"].some(function (badChar) { return char === badChar})) {
+    return getRandomChar();
+  }
+
+  return char;
 }
 
 module.exports = class extends Generator {
@@ -202,6 +215,9 @@ module.exports = class extends Generator {
 
     const templateData = {
       appname: this.projectName,
+      appnameKebabCase: () => {
+        return _.kebabCase(this.projectName);
+      },
       date: new Date().toISOString().split('T')[0],
       name: this.pkg.name,
       version: this.pkg.version,
@@ -216,7 +232,10 @@ module.exports = class extends Generator {
       includeJQuery: this.includeJQuery,
       includeTailwind: this.includeTailwind,
       includeAlpine: this.includeAlpine,
-      includeLazyload: this.includeLazyload
+      includeLazyload: this.includeLazyload,
+      generateSalt: () => {
+        return Array.apply(null, Array(64)).map(getRandomChar).join("");
+      }
     };
 
     const copy = (input, output) => {
@@ -259,10 +278,11 @@ module.exports = class extends Generator {
       config[this.projectType].filesToRender(this).forEach(file => {
         copyTpl(file.input, file.output, templateData);
       });
-    }
 
-    if (this.projectType === 'html') {
-      copyTpl('index.html', 'src/index.html', templateData);
+    } else if (this.projectType === 'html') {
+
+      copyTpl('_index.html.ejs', 'src/index.html', templateData);
+
     }
 
     if (this.includeBootstrap) {
@@ -298,10 +318,11 @@ module.exports = class extends Generator {
 
   install() {
 
-    this.npmInstall();
-
     if (this.projectType === 'bedrock' || this.projectType === 'craft') {
       this.spawnCommandSync('composer', ['install'])
     }
+
+    this.npmInstall();
+
   }
 };

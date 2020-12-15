@@ -1,5 +1,5 @@
 {
-  "name": "<%= appname %>",
+  "name": "<%= appnameKebabCase() %>",
   "private": true,
   "engines": {
     "node": ">=4"
@@ -7,13 +7,13 @@
   "paths": {
     "srcFolder": "src/",
     <%_ if (projectType === 'bedrock') { -%>
-    "distFolder": "web/app/themes/<%= wordpressTemplateName %>/static/",
+    "distFolder": "./web/app/themes/<%= wordpressTemplateName %>/static",
     "criticalCss": "./web/app/themes/<%= wordpressTemplateName %>/static/css/critical",
     <%_ } else if(projectType === 'craft') { -%> 
-    "distFolder": "web/assets",
+    "distFolder": "./web/assets",
     "criticalCss": "./templates/_includes/css/critical",
     <%_ } else { -%>
-    "distFolder": "dist/",
+    "distFolder": "./dist/",
     "criticalCss": "./dist/css/critical",
     <%_ } -%>
     "criticalPages": {
@@ -22,7 +22,18 @@
         <%_ } else { -%>
         "home": "index.html"
         <%_ } -%>
-    }
+    }<%_ if (includeTailwind) { -%>,
+    "purgeFiles": [
+      <%_ if (projectType === 'html') { -%>
+      "./src/**/*.{html}",
+      <%_ } else if (projectType === 'bedrock') { -%>
+      "./web/app/themes/<%= wordpressTemplateName %>/templates/**/*.{twig,html}",
+      <%_ } else if (projectType === 'craft') { -%>
+      "./templates/**/*.{twig,html}",
+      <%_ } -%>
+      "./src/js/**/*.js"
+    ]
+    <%_ } -%>
   },
   "favicon": {
     "themeColor": "#ffffff",
@@ -39,6 +50,7 @@
     "browser-sync": "^2.26.7",
     "critical": "^1.3.9",
     "cross-env": "^7.0.2",
+    "cssnano": "^4.1.10",
     "del": "^5.1.0",
     "es6-promise-pool": "^2.5.0",
     "expose-loader": "^0.7.5",
@@ -60,6 +72,7 @@
     "gulp-size": "^3.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
+    "postcss": "^8.1.10",
     "postcss-clean": "^1.1.0",
     "through2": "^3.0.1",
     "webpack": "^4.42.1",

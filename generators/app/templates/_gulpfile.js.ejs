@@ -1,7 +1,7 @@
 // generated on <%= date %> using <%= name %> <%= version %>
 
 
-const $ = require('gulp-load-plugins')({ pattern: ['*'] });
+const $ = require('gulp-load-plugins')({ pattern: ['gulp-*'] });
 
 const pkg = require('./package.json');
 
@@ -10,13 +10,10 @@ const gulp                      = require('gulp'),
       through2                  = require('through2'),
       log                       = require('fancy-log'),
       path                      = require('path'),
-      autoprefixer              = require('autoprefixer'),
+      del                       = require('del'),
       webpack                   = require('webpack'),
       webpackStream             = require('webpack-stream'),
-      <%_ if (includeTailwind) { -%>
-      purgecss                  = require('@fullhuman/postcss-purgecss'),
-      <%_ } -%>
-      browserSync               = $.browserSync.create(),
+      browserSync               = require('browser-sync').create(),
       critical                  = require('critical'),
       PromisePool               = require('es6-promise-pool'),
 
@@ -41,10 +38,6 @@ const gulp                      = require('gulp'),
       dist_font                 = path.join(dist_folder, '/fonts'),
       dist_html                 = path.join(dist_folder, '/**/*.{twig,html}'),
 
-      templates_purgeCSS        = [
-                                    './**/*.{twig,html}' // change path to be where your html or templates are.
-                                  ],
-
       critical_css              = pkg.paths.criticalCss;
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -63,18 +56,21 @@ src_generic_assets.forEach((el) => {
 // Clean generated assets
 function clean() {
 
+  <%_ if (projectType === 'html') { -%>
   const all_dist = [dist_css, dist_js, dist_img, dist_font, temp_folder].concat(dist_generic_assets);
+  <%_ } else { -%>
+  const all_dist = dist_folder;
+  <%_ } -%>
 
   log.warn(`Deleting: ${all_dist}`);
 
-  return $.del(all_dist);
+  return del(all_dist);
 };
 
 gulp.task('generic-assets', (done) => {
   if(src_generic_assets.length > 0) {
     gulp.src(src_generic_assets, {
       allowEmpty: true,
-      base: src_folder
     })
       .pipe(gulp.dest(dist_folder))
       .pipe(browserSync.stream())
@@ -128,28 +124,15 @@ gulp.task('inject-css-js', () => {
 });
 <%_ if (includeTailwind) { -%>
 
-// Custom PurgeCSS extractor for Tailwind that allows special characters in
-// class names.
-//
-// https://github.com/FullHuman/purgecss#extractor
-const tailwindExtractor = (content) => {
-  return content.match(/[A-z0-9-:\/]+/g);
-}
-
-const postcss_purgecss = purgecss({
-  content: templates_purgeCSS,
-  extractors: [{
-    extractor: tailwindExtractor,
-    extensions: ["html", "twig", "css", "js"]
-  }],
-  whitelist: [
-    // whitelist css selectors
-    'show', 
-  ],
-  whitelistPatterns: [
-    // whitelist using regex patterns
-    /flickity-.*\b/ 
-  ]
+gulp.task('export-tailwind-config', () => {
+  return gulp
+      .src('./tailwind.config.js')
+      .pipe($.tailwindcssExportConfig({
+          output: '_tailwind.config.scss',
+          format: 'scss',
+          quotedKeys: true,
+      }))
+      .pipe(gulp.dest(path.join(src_folder, '/scss/imports')));
 });
 <%_ } -%>
 
@@ -161,11 +144,10 @@ gulp.task('postcss', () => {
     .pipe($.if(!isProd, $.sourcemaps.init({loadMaps: true})))
     .pipe($.postcss([
           <%_ if (includeTailwind) { -%>
-          $.tailwindcss(),
-          isProd ? postcss_purgecss : false,
+          require('tailwindcss'),
           <%_ } -%>
-          $.autoprefixer(),
-          isProd ? $.postcssClean() : false
+          require('autoprefixer'),
+          isProd ? require('cssnano')({ preset: 'default' }) : false
         ].filter(Boolean)))
     .pipe($.if(!isProd, $.sourcemaps.write()))
     .pipe(f.restore)
@@ -175,7 +157,7 @@ gulp.task('postcss', () => {
     .pipe(browserSync.stream());
 });
 
-gulp.task('sass', gulp.series(() => {
+gulp.task('sass', gulp.series(<%_ if (includeTailwind) { -%>'export-tailwind-config', <%_ } -%>() => {
   return gulp.src(src_asset_scss)
     .pipe($.if(!isProd, $.sourcemaps.init()))
       .pipe($.plumber())
@@ -198,6 +180,9 @@ gulp.task('js', gulp.series('lint', () => {
     .pipe($.plumber())
     .pipe(webpackStream({
       mode: isProd ? 'production' : 'development',
+      entry: {
+        main: path.join(__dirname, src_folder, '/js/main.js'),
+      },
       output: {
         filename: isProd ? '[name].min.js' : '[name].js'
       },
@@ -347,7 +332,15 @@ gulp.task('browser-sync', (done) => {
     server: {
       baseDir: [ dist_folder ]
     },
-    port: 3000
+    port: 3000,
+    snippetOptions: {
+      rule: {
+        match: /<head[^>]*>/i,
+        fn: function(snippet, match) {
+          return match + snippet;
+        }
+      }
+    }
   });
 
   done();

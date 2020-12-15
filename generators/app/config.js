@@ -20,15 +20,15 @@ module.exports = {
   ],
   filesToRender: [
     {
-      input: 'gitignore.ejs',
+      input: '_gitignore.ejs',
       output: '.gitignore'
     },
     {
-      input: 'eslintrc.json.ejs',
+      input: '_eslintrc.json.ejs',
       output: '.eslintrc'
     },
     {
-      input: 'gulpfile.js.ejs',
+      input: '_gulpfile.js.ejs',
       output: 'gulpfile.js'
     },
     {
@@ -40,7 +40,7 @@ module.exports = {
       output: 'README.md'
     },
     {
-      input: 'styles.scss.ejs',
+      input: '_styles.scss.ejs',
       output: 'src/scss/styles.scss'
     },
     {
@@ -56,7 +56,7 @@ module.exports = {
       output: 'src/scss/_functions.scss'
     },
     {
-      input: 'src/js/main.js.ejs',
+      input: 'src/js/_main.js.ejs',
       output: 'src/js/main.js'
     }
   ],
@@ -130,7 +130,7 @@ module.exports = {
     ],
     filesToRender: (el) => [
       {
-        input: 'bedrock/style.css',
+        input: 'bedrock/_style.css.ejs',
         output: `web/app/themes/${el.wordpressTemplateName}/style.css`
       },
       {

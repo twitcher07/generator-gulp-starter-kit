@@ -88,6 +88,20 @@
           <p>Sleek, intuitive, and powerful mobile first front-end framework for faster and easier web development.</p>
         </div>
 
+        <%_ if (includeLazyload) { -%>
+        <div class="col-lg-6">
+          <h4>Vanilla Lazyload <a href="https://github.com/verlok/vanilla-lazyload">[Documentation]</a></h4>
+          <p>A lightweight (2.4 kB) and flexible script that speeds up your web application by deferring the loading of your below-the-fold images, videos and iframes to when they will enter the viewport.</p>
+        </div>
+        <%_ } -%>
+
+        <%_ if (includeAlpine) { -%>
+        <div class="col-lg-6">
+          <h4>Alpine.js <a href="https://github.com/alpinejs/alpine">[Documentation]</a></h4>
+          <p>It offers you the reactive and declarative nature of big frameworks like Vue or React at a much lower cost.</p>
+        </div>
+        <%_ } -%>
+
         <%_ if (includeTailwind) { -%>
         <div class="col-lg-6">
           <h4>Tailwind CSS <a href="https://tailwindcss.com/docs/installation/">[Documentation]</a></h4>
@@ -123,7 +137,7 @@
       <h1>'Allo, 'Allo!</h1>
       <p>You now have</p>
       <ul>
-        <%_ if (includeHTML) { -%>
+        <%_ if (projectType === 'html') { -%>
         <li>HTML5 Boilerplate</li>
         <%_ } -%>
         <li>Sass</li>
@@ -134,6 +148,12 @@
         <li>Babel.js <a href="https://babeljs.io/docs/en/">[Documentation]</a></li>
         <%_ if (includeJQuery) { -%>
         <li>jQuery</li>
+        <%_ } -%>
+        <%_ if (includeLazyload) { -%>
+        <li>Vanilla Lazyload <a href="https://github.com/verlok/vanilla-lazyload">[Documentation]</a></li>
+        <%_ } -%>
+        <%_ if (includeAlpine) { -%>
+        <li>Alpine.js <a href="https://github.com/alpinejs/alpine">[Documentation]</a></li>
         <%_ } -%>
       </ul>
     </div>
