@@ -1,4 +1,5 @@
 {
+  "name": "<%= appname %>",
   "private": true,
   "engines": {
     "node": ">=4"
@@ -9,13 +10,15 @@
     "distFolder": "web/app/themes/<%= wordpressTemplateName %>/static/",
     "criticalCss": "./web/app/themes/<%= wordpressTemplateName %>/static/css/critical",
     <%_ } else if(projectType === 'craft') { -%> 
+    "distFolder": "web/assets",
+    "criticalCss": "./templates/_includes/css/critical",
     <%_ } else { -%>
     "distFolder": "dist/",
     "criticalCss": "./dist/css/critical",
     <%_ } -%>
     "criticalPages": {
-        <%_ if (projectType === 'bedrock') { -%>
-        "home": "http://your-url.test"
+        <%_ if (projectType === 'bedrock' || projectType === 'craft') { -%>
+        "home": "<%= siteUrl %>"
         <%_ } else { -%>
         "home": "index.html"
         <%_ } -%>

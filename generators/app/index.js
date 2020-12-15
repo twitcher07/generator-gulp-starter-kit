@@ -1,10 +1,21 @@
 'use strict';
 const Generator = require('yeoman-generator');
 const path = require('path');
+const _ = require('lodash');
 const chalk = require('chalk');
 const yosay = require('yosay');
 const mkdirp = require('mkdirp');
 const config = require('./config');
+
+function validURL(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
 
 module.exports = class extends Generator {
 
@@ -64,25 +75,21 @@ module.exports = class extends Generator {
             value: 'html'
           },
         ],
-        default: 'html'
+        default: 'html',
+        store: true
       },
       {
         type: 'input',
         name: 'wordpressTemplateName',
         message: 'What do you want to call your custom wordpress theme?',
-        default: answers => answers.projectName.toString().toLowerCase()
-                  .replace(/\s+/g, '-')           // Replace spaces with -
-                  .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-                  .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-                  .replace(/^-+/, '')             // Trim - from start of text
-                  .replace(/-+$/, ''),
+        default: answers => _.kebabCase(answers.projectName),
         when: answers => answers.projectType.includes('bedrock')
       },
       {
         type: 'input',
         name: 'craftSiteName',
         message: 'What do you want to call your Craft site?',
-        default: this.appname,
+        default: answers => answers.projectName,
         when: answers => answers.projectType.includes('craft')
       },
       {
@@ -92,6 +99,41 @@ module.exports = class extends Generator {
         default() {
           return `http://${path.basename(process.cwd())}.test`;
         },
+        validate(input) {
+          if(validURL(input)) {
+            return true;
+          } else {
+            return chalk.bgRed.white('Please enter a valid URL.');
+          }
+        },
+        when: answers => answers.projectType.includes('craft') || answers.projectType.includes('bedrock')
+      },
+      {
+        type: 'input',
+        name: 'dbName',
+        message: 'What is the name of the database?',
+        validate(input) {
+          if (input === '') {
+            return chalk.bgRed.white('Database name cannot be blank.');
+          }
+          return true;
+        },
+        when: answers => answers.projectType.includes('craft') || answers.projectType.includes('bedrock')
+      },
+      {
+        type: 'input',
+        name: 'dbUser',
+        message: 'What is the username for the database?',
+        default: 'root',
+        when: answers => answers.projectType.includes('craft') || answers.projectType.includes('bedrock')
+      },
+      {
+        type: 'password',
+        name: 'dbPassword',
+        message(answers) { 
+          return `What is the password for ${answers.dbUser}?`;
+        },
+        default: '',
         when: answers => answers.projectType.includes('craft') || answers.projectType.includes('bedrock')
       },
       {
@@ -119,7 +161,8 @@ module.exports = class extends Generator {
             value: 'includeTailwind',
             checked: true
           },
-        ]
+        ],
+        store: true
       },
       {
         type: 'confirm',
@@ -133,6 +176,9 @@ module.exports = class extends Generator {
         this.wordpressTemplateName = answers.wordpressTemplateName;
         this.craftSiteName = answers.craftSiteName;
         this.siteUrl = answers.siteUrl;
+        this.dbName = answers.dbName;
+        this.dbUser = answers.dbUser;
+        this.dbPassword = answers.dbPassword;
 
         const features = answers.features;
         const hasFeature = feat => features && features.includes(feat);
@@ -163,6 +209,9 @@ module.exports = class extends Generator {
       wordpressTemplateName: this.wordpressTemplateName,
       craftSiteName: this.craftSiteName,
       siteUrl: this.siteUrl,
+      dbName: this.dbName,
+      dbUser: this.dbUser,
+      dbPassword: this.dbPassword,
       includeBootstrap: this.includeBootstrap,
       includeJQuery: this.includeJQuery,
       includeTailwind: this.includeTailwind,
@@ -197,17 +246,17 @@ module.exports = class extends Generator {
       mkdirp(item);
     });
 
-    if(this.projectType === 'bedrock') {
+    if(this.projectType === 'bedrock' || this.projectType === 'craft') {
 
-      config.bedrock.dirsToCreate(this).forEach(item => {
+      config[this.projectType].dirsToCreate(this).forEach(item => {
         mkdirp(item);
       });
       
-      config.bedrock.filesToCopy.forEach(file => {
+      config[this.projectType].filesToCopy.forEach(file => {
         copy(file.input, file.output);
       });
 
-      config.bedrock.filesToRender(this).forEach(file => {
+      config[this.projectType].filesToRender(this).forEach(file => {
         copyTpl(file.input, file.output, templateData);
       });
     }
@@ -224,7 +273,7 @@ module.exports = class extends Generator {
       }
     }
     
-    if (this.includeJQuery) {
+    if (this.includeJQuery && !pkgJson.dependencies.hasOwnProperty('jquery')) {
       pkgJson.dependencies.jquery = '^3.4.1';
     }
 
@@ -248,10 +297,11 @@ module.exports = class extends Generator {
   }
 
   install() {
-    if (this.projectType === 'bedrock') {
-      this.spawnCommand('composer', ['install'])
-    }
 
     this.npmInstall();
+
+    if (this.projectType === 'bedrock' || this.projectType === 'craft') {
+      this.spawnCommandSync('composer', ['install'])
+    }
   }
 };

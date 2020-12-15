@@ -64,11 +64,7 @@ module.exports = {
     dirsToCreate: (el) => [`web/app/themes/${el.wordpressTemplateName}/static/`],
     filesToCopy: [
       {
-        input: 'bedrock/env',
-        output: '.env'
-      },
-      {
-        input: 'bedrock/env',
+        input: 'bedrock/.env.example',
         output: '.env.example'
       },
       {
@@ -141,6 +137,25 @@ module.exports = {
         input: 'bedrock/web/app/themes/timber-starter',
         output: `web/app/themes/${el.wordpressTemplateName}`
       },
+      {
+        input: '_env.ejs',
+        output: '.env'
+      }
     ] 
+  },
+  craft: {
+    dirsToCreate: (el) => [],
+    filesToCopy: [
+      {
+        input: 'craft',
+        output: './'
+      }
+    ],
+    filesToRender: (el) => [
+      {
+        input: '_env.ejs',
+        output: '.env'
+      }
+    ]
   }
 };

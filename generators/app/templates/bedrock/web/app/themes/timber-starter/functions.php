@@ -52,6 +52,18 @@ Timber::$dirname = array( 'templates', 'views' );
  */
 Timber::$autoescape = false;
 
+/**
+ * Used for busting cache on styles/scripts.
+ */
+function cacheBust($versionNumber = null) {
+	if($versionNumber && WP_ENV !== 'development') {
+		return $versionNumber;
+	} elseif ( WP_ENV == 'development' ) {
+		return md5(rand());
+	} else {
+		return null;
+	}
+};
 
 /**
  * We're going to configure our theme inside of a subclass of Timber\Site
@@ -65,6 +77,27 @@ class StarterSite extends Timber\Site {
 		add_filter( 'timber/twig', array( $this, 'add_to_twig' ) );
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
+		add_action( 'init', array( $this, 'register_scripts' ) );
+
+		// Remove stupid wp-emoji script and styles
+		add_action( 'init', array( $this, 'remove_emojis_frontend' ) );
+
+		// Remove default block theme
+		add_action( 'wp_enqueue_scripts', array( $this, 'remove_block_library_css' ) );
+
+		// add custom theme styles
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_theme_scripts' ) );
+
+		// Disable Gutenberg editor
+		add_filter('use_block_editor_for_post', array( $this, '__return_false'), 10);
+
+		// Add ACF Pro website options page
+		if( function_exists('acf_add_options_page') ) {
+			acf_add_options_page();
+		}
+
+		add_action('acf/init', array( $this, 'my_acf_init' ) );
+
 		parent::__construct();
 	}
 	/** This is where you can register custom post types. */
@@ -85,6 +118,11 @@ class StarterSite extends Timber\Site {
 		$context['stuff'] = 'I am a value set in your functions.php file';
 		$context['notes'] = 'These values are available everytime you call Timber::context();';
 		$context['menu']  = new Timber\Menu();
+
+		if( class_exists('ACF') ) {
+			$context['options'] = get_fields('option');
+		}
+
 		$context['site']  = $this;
 		return $context;
 	}
@@ -152,6 +190,13 @@ class StarterSite extends Timber\Site {
 		return $text;
 	}
 
+	/**
+	 * preg_replace for use in twig
+	 */
+	public function twig_regex($subject, $pattern, $replacement) {
+	    return preg_replace($pattern, $replacement, $subject);
+	}
+
 	/** This is where you can add your own functions to twig.
 	 *
 	 * @param string $twig get extension.
@@ -159,7 +204,64 @@ class StarterSite extends Timber\Site {
 	public function add_to_twig( $twig ) {
 		$twig->addExtension( new Twig\Extension\StringLoaderExtension() );
 		$twig->addFilter( new Twig\TwigFilter( 'myfoo', array( $this, 'myfoo' ) ) );
+		$twig->addFilter( new Twig\TwigFilter('preg_replace', array( $this, 'twig_regex') ) );
 		return $twig;
+	}
+
+	//------------------------------------
+	// Register scripts and styles
+	//------------------------------------
+	function register_scripts() {
+
+		//wp_register_style('type-kit-fonts', 'https://use.typekit.net/jup0oph.css'); // how to add fonts
+
+		if(WP_ENV == 'production') {
+			// Styles
+			wp_register_style('style', get_template_directory_uri() . '/static/css/styles.min.css', array(), cacheBust('1.0.0'));
+			// Scripts
+			wp_register_script('main-js', get_template_directory_uri() . '/static/js/main.min.js', array(), cacheBust(), true);
+		} else {
+			// Styles
+			wp_register_style('style', get_template_directory_uri() . '/static/css/styles.css', array(), cacheBust('1.0.0'));
+			// Scripts
+			wp_register_script('main-js', get_template_directory_uri() . '/static/js/main.js', array(), cacheBust(), true);
+		}
+	}
+
+	//------------------------------------
+	// Add styles/scripts for custom theme
+	//------------------------------------
+	function add_theme_scripts($wp_scripts) {
+		if( is_admin() ) {
+	        return;
+	    }
+
+		// Put jquery in footer
+		wp_scripts()->add_data( 'jquery', 'group', 1 );
+	    wp_scripts()->add_data( 'jquery-core', 'group', 1 );
+	    wp_scripts()->add_data( 'jquery-migrate', 'group', 1 );
+
+		// add main.js to page
+		wp_enqueue_script('main-js');
+
+		// add styles to page
+		wp_enqueue_style('style');
+	}
+
+	//------------------------------------
+	// Remove default wordpress block theme css
+	//------------------------------------
+	function remove_emojis_frontend() {
+		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+		remove_action( 'wp_print_styles', 'print_emoji_styles');
+	}
+
+	//------------------------------------
+	// Remove default wordpress block theme css
+	//------------------------------------
+	function remove_block_library_css(){
+	    wp_dequeue_style( 'wp-block-library' );
+	    wp_dequeue_style( 'wp-block-library-theme' );
 	}
 
 }
