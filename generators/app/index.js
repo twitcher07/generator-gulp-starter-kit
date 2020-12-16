@@ -330,14 +330,23 @@ module.exports = class extends Generator {
 
   end() {
 
-    this.log(
-      chalk.magenta('---------------------------------------------------\n') +
-      chalk.bgMagenta.white('        Building frontend files for first time.        \n') +
-      chalk.magenta('---------------------------------------------------'));
+    if(this.projectType === 'bedrock' || this.projectType === 'craft') {
 
-    this.spawnCommandSync('npm', ['run', 'build:dev']);
+      this.log(yosay('allo!\nJust gonna build the frontend files for the first time since they\'re in the .gitignore.'))
 
-    this.log(yosay(`Thanks for using Gulp Starter Kit!\nCheers 🍻!`));
+      this.spawnCommandSync('npm', ['run', 'build:dev']);
+
+    }
+
+    if(this.projectType === 'html') {
+
+      this.log(yosay(`Thanks for using Gulp Starter Kit!\nTry running 'npm run serve' to check out your new fancy project!\nCheers 🍻!`));
+
+    } else {
+
+      this.log(yosay(`Thanks for using Gulp Starter Kit!\nCheers 🍻!`));
+
+    }
 
     if (this.projectType === 'craft') {
 
@@ -345,12 +354,10 @@ module.exports = class extends Generator {
       this.spawnCommandSync('php', ['craft', 'setup/security-key']);
       this.spawnCommandSync('php', ['craft', 'setup/app-id']);
 
-      this.log(
-        chalk.magenta('---------------------------------------------------\n') +
-        chalk.bgMagenta.white('You will now be running through `php craft install`.\n') +
-        chalk.magenta('---------------------------------------------------'));
+      this.log(yosay('g\'day!\nGonna run you through `php craft install` process now.'))
 
       this.spawnCommandSync('php', ['craft', 'install']);
+
     }
 
   }

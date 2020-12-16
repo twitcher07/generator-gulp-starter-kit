@@ -1,13 +1,18 @@
 # Welcome to the Gulp Starter Kit.
+
 # Table of Contents
-===
+
+---
+
 1. [Requirements](#installation-requirements)
 2. [Build Tools & Assets](#build-tools-&-assets)
 3. [Getting Started](#getting-started)
 4. [Build Commands](#build-commands)
 
 # Installation requirements
-===
+
+---
+
 * Node.js (at least version 10)
 * NPM
 <%_ if (projectType === 'bedrock' || projectType === 'craft') { -%>
@@ -16,7 +21,9 @@
 * Gulp.js version 4
 
 # Tools & Frontend Assets
-===
+
+---
+
 ## What's included:
 <%_ if (projectType === 'bedrock') { -%>
 * Bedrocks by Roots - WordPress boilerplate with modern development tools [Documentation](https://roots.io/bedrock/)
@@ -50,7 +57,9 @@
 <%_ } -%>
 
 # Getting Started
-===
+
+---
+
 ## Customizing output path
 Change `"paths": { "distFolder": "dist/" }` in `package.json` to be where you want to output the frontend files. If you leave everything as is, it will create this folder structure **inside** the `distFolder`: 
 ```
@@ -95,9 +104,9 @@ Make sure in your `package.json` that `"purgeFiles": []` contains an array to an
 <%_ } -%> 
 
 ## Favicons
-Overwrite `src/favicon260x260.png` or change the variable `const favicon = path.join(src_folder, 'favicon260x260.png')` to point to the master image for generating the favicons. Master favicon image should be at least 260x260.
+Icons and `.webmanifest` are generated using `gulp-real-favicon`. Overwrite `src/favicon260x260.png` or change the variable `const favicon = path.join(src_folder, 'favicon260x260.png')` to point to the master image for generating the favicons. Master favicon image should be at least 260x260.
 
-Change these variables in `package.json` to match your site's design.
+Change these variables in `package.json` to match your site's design:
 ```json
 {
 	"favicon": {
@@ -106,9 +115,14 @@ Change these variables in `package.json` to match your site's design.
 	}
 }
 ```
+`themeColor` is used to create `<meta name="theme-color" content="#ffffff">` and the color information in the `.webmanifest` file.
+
+`backgroundColor` will be used for the background of `ms-tile` icons.
 
 # Build Commands
-===
+
+---
+
 ## `gulp serve`
 Probably the go-to command for development.
 

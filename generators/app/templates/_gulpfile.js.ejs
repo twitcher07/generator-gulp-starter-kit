@@ -381,7 +381,7 @@ gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'images', 
 const criticalPages = pkg.paths.criticalPages;
 
 // Generate critical css based on path to pages
-gulp.task('critical', gulp.series(<% if (projectType === 'html') { %>'serve'<% } else { %>'build'<% } %>, function (cb) {
+gulp.task('critical', gulp.series('build', function (cb) {
 
   // constructing array out of list-object returned by config.yaml so I can pop each item.
   var pages = Object.keys(criticalPages).map(function (val) {
@@ -399,7 +399,7 @@ gulp.task('critical', gulp.series(<% if (projectType === 'html') { %>'serve'<% }
     return critical.generate({
       base: dist_folder,
       src: page.url,
-      css: path.join(dist_css, () => isProd ? 'styles.min.css' : 'styles.css'),
+      css: isProd ? path.join(dist_css, 'styles.min.css') : path.join(dist_css, 'styles.css'),
       styleTarget: path.join(critical_css, page.key + '.css'),
       minify: true,
       dimension: [{
