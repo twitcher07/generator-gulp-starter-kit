@@ -11,6 +11,6 @@ describe('generator-gulp-starter-kit:app', () => {
   });
 
   it('creates files', () => {
-    assert.file(['_package.json']);
+    assert.file(['../generators/app/templates/_package.json.ejs']);
   });
 });

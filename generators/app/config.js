@@ -61,10 +61,6 @@ module.exports = {
       output: 'src/scss/_base.scss'
     },
     {
-      input: '_buttons.scss.ejs',
-      output: 'src/scss/_buttons.scss'
-    },
-    {
       input: '_typography.scss.ejs',
       output: 'src/scss/_typography.scss'
     },

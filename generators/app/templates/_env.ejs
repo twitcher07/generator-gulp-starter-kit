@@ -51,7 +51,7 @@
     DB_USER=<%= dbUser %>
     
     # The database password to connect with
-    DB_PASSWORD=<%= dbPassword %>
+    DB_PASSWORD='<%= dbPassword %>'
     
     # The database schema that will be used (PostgreSQL only)
     DB_SCHEMA=public
@@ -59,7 +59,7 @@
     # The prefix that should be added to generated table names (only necessary if multiple things are sharing the same database)
     DB_TABLE_PREFIX=
     
-    PRIMARY_SITE_URL=<% siteUrl %>
+    PRIMARY_SITE_URL=<%= siteUrl %>
     
     # System Email info
     EMAIL_ADDRESS=

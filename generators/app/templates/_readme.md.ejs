@@ -1,22 +1,27 @@
 # Welcome to the Gulp Starter Kit.
 # Table of Contents
+===
 1. [Requirements](#installation-requirements)
 2. [Build Tools & Assets](#build-tools-&-assets)
 3. [Getting Started](#getting-started)
 4. [Build Commands](#build-commands)
 
 # Installation requirements
+===
 * Node.js (at least version 10)
 * NPM
-<%_ if (projectType === 'bedrock') { -%>
+<%_ if (projectType === 'bedrock' || projectType === 'craft') { -%>
 * Composer
 <%_ } -%>
 * Gulp.js version 4
 
 # Tools & Frontend Assets
+===
 ## What's included:
 <%_ if (projectType === 'bedrock') { -%>
 * Bedrocks by Roots - WordPress boilerplate with modern development tools [Documentation](https://roots.io/bedrock/)
+<%_ } else if (projectType === 'craft') { -%>
+* Craft CMS v3.5.10 - Craft is a flexible, user-friendly CMS for creating custom digital experiences on the web and beyond. [Documentation](https://craftcms.com/docs/3.x/)
 <%_ } -%>
 * Gulp 4 - [Documentation](https://gulpjs.com/docs/en/getting-started/quick-start)
 * Sass Compiling (using gulp-sass) - [Documentation](https://github.com/dlmanning/gulp-sass)
@@ -27,20 +32,25 @@
 <%_ if (projectType === 'html') { -%>
 * BrowserSync - [Documentation](https://www.browsersync.io/docs)
 <%_ } -%>
-* Minification of CSS and JS for production use (using [clean-css](https://github.com/jakubpawlowicz/clean-css) and Webpack's built in optimization of ['production' mode](https://v4.webpack.js.org/configuration/mode/))
+* Minification of CSS and JS for production use (using [cssnano](https://github.com/cssnano/cssnano) and Webpack's built in optimization of ['production' mode](https://v4.webpack.js.org/configuration/mode/))
 * Favicon Generation (using gulp-real-favicon) - [Documentation](https://github.com/RealFaviconGenerator/gulp-real-favicon)
 
-<%_ if (includeJQuery || includeTailwind || includeBootstrap) { -%>
+<%_ if (includeAlpine || includeJQuery || includeTailwind || includeBootstrap) { -%>
 ## Frontend assets:
+<%_ } if (includeAlpine) { -%>
+* Alpine.js - [Documentation](https://github.com/alpinejs/alpine)
 <%_ } if (includeTailwind) { -%>
-* Tailwind CSS - [Documentation](https://tailwindcss.com/docs/installation)
+* Tailwind CSS v2.0 - [Documentation](https://tailwindcss.com/docs)
+<%_ } if (includeLazyload) { -%>
+* Vanill Lazyload - [Documentation](https://github.com/verlok/vanilla-lazyload/tree/17.1.3)
 <%_ } if (includeJQuery) { -%>
-* jQuery v 3.4 - [Documentation](https://api.jquery.com/)
+* jQuery v3.4 - [Documentation](https://api.jquery.com/)
 <%_ } if (includeBootstrap) { -%> 
 * Bootstrap 4.4.0 - [Documentation](https://getbootstrap.com/docs/4.4/getting-started/introduction/)
 <%_ } -%>
 
 # Getting Started
+===
 ## Customizing output path
 Change `"paths": { "distFolder": "dist/" }` in `package.json` to be where you want to output the frontend files. If you leave everything as is, it will create this folder structure **inside** the `distFolder`: 
 ```
@@ -59,11 +69,12 @@ dist_img = path.join(dist_folder, '/images'),
 dist_font = path.join(dist_folder, '/fonts'),
 dist_html = path.join(dist_folder, '/**/*.{twig,html}'),
 ```
+<%_ if (projectType === 'html') { -%>
 
-## Injecting links to CSS and Javascript from gulp build
-First, make sure `dist_html` variable inside `gulpfile.js` points to the production path to either your html files if it's a static site, or points to the template files (php, twig, mustache, etc.).
+## Injecting links to CSS and Javascript
+First, make sure `dist_html` variable inside `gulpfile.js` points to the production path to your html files.
 
-Then place these html comments inside the template or html files:
+Then place these html comments inside the `./src` html files:
 
 For CSS:
 ```
@@ -76,9 +87,11 @@ For Javascript:
 <!-- inject:js -->
 <!-- endinject -->
 ```
+<%_ } -%>
 <%_ if (includeTailwind) { -%>
-## Setting up PurgeCSS 
-Make sure variable `templates_purgeCSS` in `gulpfile.js` contains globs to the html files or template files of your site. PurgeCSS will parse these files for the CSS selectors used and then extract them for the production version of the CSS file.
+
+## Setting up purging of TailwindCSS 
+Make sure in your `package.json` that `"purgeFiles": []` contains an array to any files that contain tailwindcss classes. To learn more go to tailwindcss documentation about (optimizing for production)[https://tailwindcss.com/docs/optimizing-for-production].
 <%_ } -%> 
 
 ## Favicons
@@ -95,32 +108,45 @@ Change these variables in `package.json` to match your site's design.
 ```
 
 # Build Commands
+===
 ## `gulp serve`
 Probably the go-to command for development.
 
-This compiles sass (and runs any postcss plugins), lints javascript, builds webpack, optimizes images, copies fonts, injects the link to CSS and javascript sources, and outputs all frontend files to the `distFolder`. 
-
+This does the following:
+* Compiles sass (and runs any postcss plugins)
+* Lints javascript
+* Builds webpack
+* Optimizes images
+* Copies fonts
+* Injects the link to CSS and javascript sources
+* Copies all frontend files to the `distFolder`. 
 <%_ if (projectType === 'html') { -%>
+
 Also, it spins up a static server using browsersync. Frontend of the site can be accessed at http:localhost:3000.
 <%_ } -%>
 
-Then it watches these files for any changes:
+Then it watches for any changes at:
 ```
-src/**/*.html
-src/css/**/*.scss
-src/js/**/*.js
-src/images/**/*.+(png|jpg|jpeg|gif|svg|ico)
-src/fonts/**/*.{eot,svg,ttf,woff,woff2}
+gulpfile.js variables:
+src_asset_html
+src_asset_scss
+src_asset_js
+src_asset_img
+src_asset_font
+<%_ if (includeTailwind) { -%>
+
+and 'tailwind.config.js'
+<%_ } -%>
 ```
 
 and then it will re-run commands depending on what changed in order to compile sass, build webpack, or copy over file changes.
 
 ## `npm run serve:dist`
 This is the production version of `gulp serve`. It creates the production version of CSS and Javascript files by:
-* Minifies CSS (clean-css) and JS (Webpack Terser Plugin)
+* Minifies CSS (cssnano) and JS (Webpack)
 * Omits source maps for CSS and JS
 <%_ if (includeTailwind) { -%>
-* Uses [purgeCSS](https://purgecss.com/) to remove unused CSS declarations. Which helps to drastically reduce the file size when using frameworks like tailwindCSS or bootstrap.
+* Purges unused tailwindcss classes. Which helps to drastically reduce the file size.
 <%_ } -%>
 
 ## `npm run critical-css:dist`
@@ -136,7 +162,10 @@ Make sure `paths.criticalPages` in `package.json` contains an object of the page
 	}
 }
 ```
-After running command, CSS that should be inlined can be found in <%_ if (projectType === 'bedrock') { %>`web/app/themes/<%= wordpressTemplateName %>` <% } else { %>`dist/css/critical/`<% } %> folder.
+After running the command, CSS that should be inlined can be found in <%_ if (projectType === 'bedrock') { %>`web/app/themes/<%= wordpressTemplateName %>`<% } else if(projectType === 'craft') { %>`./templates/_includes/css/critical`<% } else { %>`dist/css/critical/`<% } %> folder.
+
+## `npm run build:dev`
+Builds out development version of frontend code.
 
 ## `npm run build`
 Builds out production version of frontend code.

@@ -347,7 +347,7 @@ module.exports = class extends Generator {
 
       this.log(
         chalk.magenta('---------------------------------------------------\n') +
-        chalk.bgMagenta.white('     Now running through `php craft install`.     \n') +
+        chalk.bgMagenta.white('You will now be running through `php craft install`.\n') +
         chalk.magenta('---------------------------------------------------'));
 
       this.spawnCommandSync('php', ['craft', 'install']);
