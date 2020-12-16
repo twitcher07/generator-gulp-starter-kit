@@ -132,7 +132,7 @@ gulp.task('export-tailwind-config', () => {
           format: 'scss',
           quotedKeys: true,
       }))
-      .pipe(gulp.dest(path.join(src_folder, '/scss/imports')));
+      .pipe(gulp.dest(path.join(src_folder, '/scss/.tmp/imports')));
 });
 <%_ } -%>
 

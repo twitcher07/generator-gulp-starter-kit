@@ -24,6 +24,12 @@ return [
 
         // The secure key Craft will use for hashing and encrypting data
         'securityKey' => App::env('SECURITY_KEY'),
+
+        'allowAdminChanges' => false,
+        
+        'useProjectConfigFile' => true,
+
+        'errorTemplatePrefix' => '_errors/_',
     ],
 
     // Dev environment settings
@@ -31,15 +37,14 @@ return [
         // Dev Mode (see https://craftcms.com/guides/what-dev-mode-does)
         'devMode' => true,
 
+        'allowAdminChanges' => true,
+
         // Prevent crawlers from indexing pages and following links
         'disallowRobots' => true,
     ],
 
     // Staging environment settings
     'staging' => [
-        // Set this to `false` to prevent administrative changes from being made on Staging
-        'allowAdminChanges' => true,
-
         // Don’t allow updates on Staging
         'allowUpdates' => false,
 
@@ -49,9 +54,6 @@ return [
 
     // Production environment settings
     'production' => [
-        // Set this to `false` to prevent administrative changes from being made on Production
-        'allowAdminChanges' => true,
-
         // Don’t allow updates on Production
         'allowUpdates' => false,
     ],

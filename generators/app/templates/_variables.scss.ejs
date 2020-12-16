@@ -3,5 +3,13 @@
 @import 'node_modules/bootstrap/scss/variables';
 
 <%_ } -%>
+<%_ if (includeTailwind) { -%>
+@import '.tmp/imports/tailwind.config';
+
+<%_ } -%>
+// Paths
+$img-path: '../images';
+$font-path: '../fonts';
+
 // Your custom variables
 $magenta: magenta;

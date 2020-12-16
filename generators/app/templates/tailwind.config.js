@@ -7,22 +7,22 @@ module.exports = {
             inset: {
                 '1/2': '50%',
             },
-        },
 
-        maxWidth: {
-            'regular': '1360px',
-            'narrow': '680px',
-            'wide': '2040px',
-            '100': '100px',
-            '200': '200px',
-            '300': '300px',
-            '400': '400px',
-            '500': '500px',
-            '600': '600px',
-            '700': '700px',
-            '800': '800px',
-            '900': '900px',
-            'none': 'none',
+            maxWidth: {
+                'regular': '1360px',
+                'narrow': '680px',
+                'wide': '2040px',
+                '100': '100px',
+                '200': '200px',
+                '300': '300px',
+                '400': '400px',
+                '500': '500px',
+                '600': '600px',
+                '700': '700px',
+                '800': '800px',
+                '900': '900px',
+                'none': 'none',
+            },
         },
 
         screens: {
@@ -32,6 +32,8 @@ module.exports = {
             'lg'  : '1025px',
             'xl' : '1441px',
             'xxl': '1921px',
+
+            'mobile-nav-max' : {'max': '1024px'}
         },
 
         colors: {

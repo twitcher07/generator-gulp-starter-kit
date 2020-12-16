@@ -1,6 +1,15 @@
 {
   "require": {
     "craftcms/cms": "^3.5.10",
+    "craftcms/mailgun": "^1.4",
+    "craftcms/redactor": "2.8.5",
+    "dolphiq/redirect": "1.1.0",
+    "mmikkel/retcon": "^2.2",
+    "nystudio107/craft-seomatic": "3.3.26",
+    "putyourlightson/craft-dashboard-begone": "^1.0",
+    "sebastianlenz/linkfield": "^1.0",
+    "verbb/field-manager": "^2.2",
+    "verbb/super-table": "^2.6",
     "vlucas/phpdotenv": "^3.4.0"
   },
   "require-dev": {

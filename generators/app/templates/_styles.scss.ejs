@@ -16,12 +16,19 @@
 
 
 <% } if (includeBootstrap) { -%>
+//-------------------------------------
+// Vendor styles
+//-------------------------------------
 @import 'node_modules/bootstrap/scss/bootstrap';
 
 <%_ } -%>
 //-------------------------------------
 // Insert your awesome styles here.
 //-------------------------------------
+@import 'base';
+@import 'typography';
+@import 'buttons';
+
 .something-awesome {
 	color: $magenta;
 }

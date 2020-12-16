@@ -318,11 +318,40 @@ module.exports = class extends Generator {
 
   install() {
 
+    this.npmInstall();
+
     if (this.projectType === 'bedrock' || this.projectType === 'craft') {
-      this.spawnCommandSync('composer', ['install'])
+
+      this.spawnCommandSync('composer', ['install']);
+
     }
 
-    this.npmInstall();
+  }
+
+  end() {
+
+    this.log(
+      chalk.magenta('---------------------------------------------------\n') +
+      chalk.bgMagenta.white('        Building frontend files for first time.        \n') +
+      chalk.magenta('---------------------------------------------------'));
+
+    this.spawnCommandSync('npm', ['run', 'build:dev']);
+
+    this.log(yosay(`Thanks for using Gulp Starter Kit!\nCheers 🍻!`));
+
+    if (this.projectType === 'craft') {
+
+      // Generate security key and app id in .env file
+      this.spawnCommandSync('php', ['craft', 'setup/security-key']);
+      this.spawnCommandSync('php', ['craft', 'setup/app-id']);
+
+      this.log(
+        chalk.magenta('---------------------------------------------------\n') +
+        chalk.bgMagenta.white('     Now running through `php craft install`.     \n') +
+        chalk.magenta('---------------------------------------------------'));
+
+      this.spawnCommandSync('php', ['craft', 'install']);
+    }
 
   }
 };

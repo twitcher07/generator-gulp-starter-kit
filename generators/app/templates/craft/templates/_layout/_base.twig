@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" class="{% if htmlClass is defined %}{{ htmlClass }}{% endif %}">
+
+    <head>
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="home" href="{{ siteUrl }}" />
+
+        {# Favicon #}
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ siteUrl }}assets/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ siteUrl }}assets/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ siteUrl }}assets/favicon-16x16.png">
+        <link rel="manifest" href="{{ siteUrl }}assets/site.webmanifest">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="{{ siteUrl }}assets/mstile-144x144.png">
+        <meta name="theme-color" content="#EE364B">
+
+        {# DNS prefetching #}
+
+        {# Font embeds here #}
+
+        {# CSS #}
+        {% if craft.app.config.general.devMode %}
+            {% set mainCssPath = "/assets/css/styles.css" %}
+        {% else %}
+            {% set mainCssPath = "/assets/css/styles.min.css" %}
+        {% endif %}
+
+        {% if includeCriticalCss is defined and includeCriticalCss == true %}
+
+            {% block criticalCss %}{% endblock %}
+
+            <link rel="preload" href="{{ mainCssPath }}" as="style" onload="this.rel='stylesheet'">
+            <noscript><link rel="stylesheet" href="{{ mainCssPath }}"></noscript>
+
+        {% else %}
+
+            <link rel="stylesheet" type="text/css" href="{{ mainCssPath }}">
+
+        {% endif %}
+
+        {# loadCSS #}
+        <script>
+            /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+            !function(a){"use strict";var b=function(b,c,d){function j(a){if(e.body)return a();setTimeout(function(){j(a)})}function l(){f.addEventListener&&f.removeEventListener("load",l),f.media=d||"all"}var g,e=a.document,f=e.createElement("link");if(c)g=c;else{var h=(e.body||e.getElementsByTagName("head")[0]).childNodes;g=h[h.length-1]}var i=e.styleSheets;f.rel="stylesheet",f.href=b,f.media="only x",j(function(){g.parentNode.insertBefore(f,c?g:g.nextSibling)});var k=function(a){for(var b=f.href,c=i.length;c--;)if(i[c].href===b)return a();setTimeout(function(){k(a)})};return f.addEventListener&&f.addEventListener("load",l),f.onloadcssdefined=k,k(l),f};"undefined"!=typeof exports?exports.loadCSS=b:a.loadCSS=b}("undefined"!=typeof global?global:this);
+            /*! loadCSS rel=preload polyfill. [c]2017 Filament Group, Inc. MIT License */
+            !function(a){if(a.loadCSS){var b=loadCSS.relpreload={};if(b.support=function(){try{return a.document.createElement("link").relList.supports("preload")}catch(a){return!1}},b.poly=function(){for(var b=a.document.getElementsByTagName("link"),c=0;c<b.length;c++){var d=b[c];"preload"===d.rel&&"style"===d.getAttribute("as")&&(a.loadCSS(d.href,d,d.getAttribute("media")),d.rel=null)}},!b.support()){b.poly();var c=a.setInterval(b.poly,300);a.addEventListener&&a.addEventListener("load",function(){b.poly(),a.clearInterval(c)}),a.attachEvent&&a.attachEvent("onload",function(){a.clearInterval(c)})}}}(this);
+        </script>
+
+        {% block head %}{% endblock head %}
+
+    </head>
+
+    <body class="{% if bodyClass is defined %}{{ bodyClass }}{% endif %}">
+
+        <a class="sr-only focus:not-sr-only" href="#main-content">{{ "Skip to main content"|t }}</a>
+
+        <!-- icons -->
+        <div style="display:none;">{% include "_includes/_icons.svg" ignore missing %}</div>
+
+        {% include "_includes/_main-navigation" %}
+
+        {% block hero %}
+        {% endblock %}
+
+        <main id="main-content" role="main">
+            {% block content %}{% endblock %}
+        </main>
+
+        {% include "_includes/_footer" %}
+
+        {% block footerJsFiles %}
+            {% if craft.app.config.general.devMode %}
+                <script type="text/javascript" src="{{ siteUrl }}assets/js/main.js"></script>
+            {% else %}
+                <script type="text/javascript" src="{{ siteUrl }}assets/js/main.min.js"></script>
+            {% endif %}
+        {% endblock %}
+
+        {# For when you need to do inline javascript after the main.js loads #}
+        {% block footerInlineScript %}{% endblock %}
+
+        {# https://browser-update.org #}
+        <script>
+            var $buoop = {
+                    required: {
+                        e:-2,
+                        f:-2,
+                        o:-2,
+                        s:-2,
+                        c:-2,
+                    },
+                    mobile: false,
+                    insecure:true,
+                    shift_page_down:false,
+                    api:2019.06
+                };
+            function $buo_f(){
+                var e = document.createElement("script");
+                e.src = "//browser-update.org/update.min.js";
+                document.body.appendChild(e);
+            };
+            try {document.addEventListener("DOMContentLoaded", $buo_f,false)}
+            catch(e){window.attachEvent("onload", $buo_f)}
+        </script>
+
+    </body>
+
+</html>

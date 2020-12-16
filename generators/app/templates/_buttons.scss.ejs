@@ -1,0 +1,67 @@
+<%_ if (includeTailwind) { -%>
+.btn {
+    @apply 
+    relative
+    inline-block 
+    px-2
+    py-1
+    leading-none 
+    text-center 
+    transition-all
+    duration-200
+    ease-in-out;
+
+    &:focus {
+      @apply
+      outline-none
+      ring;
+    }
+
+    @responsive {
+      &--xs {
+        @apply 
+        text-p875
+        px-1 
+        py-p5;
+      }
+  
+      &--sm {
+        @apply 
+        text-p875 
+        px-1p5 
+        py-p75;
+      }
+  
+      &--lg {
+        @apply 
+        px-3 
+        py-1p5;
+      }
+    }
+  
+    &--primary {
+      @apply 
+      bg-primary
+      text-white;
+
+      &:hover,
+      &:focus {
+        background: lighten(map-get($backgroundColor, "primary"), 10%);
+      }
+    }
+  
+    &--secondary {
+      @apply 
+      bg-secondary
+      text-primary;
+
+      &:hover,
+      &:focus {
+        background: lighten(map-get($backgroundColor, "secondary"), 10%);
+      }
+    }
+}
+<%_ } else { -%>
+// Button Styles
+<%_ } -%>
+      

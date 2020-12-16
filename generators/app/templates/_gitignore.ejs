@@ -25,7 +25,7 @@ web/.htaccess
 !.env.example
 
 # Composer
-/vendor
+vendor
 
 <%_ if (projectType === 'bedrock') { -%>
 # WP-CLI
@@ -37,8 +37,14 @@ node_modules
 
 # temporary build files
 .tmp
+src/scss/.tmp
 
+<%_ if (projectType === 'bedrock' || projectType === 'craft') { -%>
 # Ignore frontend files that are part of `gulp build` process
+faviconData.json
+<%_ } -%>
 <%_ if (projectType === 'bedrock') { -%>
 web/app/theme/<%= wordpressTemplateName %>/static
+<%_ } else if (projectType === 'craft') { -%>
+web/assets
 <%_ } -%>

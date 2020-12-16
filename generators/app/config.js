@@ -39,6 +39,7 @@ module.exports = {
       input: '_readme.md.ejs',
       output: 'README.md'
     },
+    // Sass files
     {
       input: '_styles.scss.ejs',
       output: 'src/scss/styles.scss'
@@ -55,6 +56,19 @@ module.exports = {
       input: '_functions.scss.ejs',
       output: 'src/scss/_functions.scss'
     },
+    {
+      input: '_base.scss.ejs',
+      output: 'src/scss/_base.scss'
+    },
+    {
+      input: '_buttons.scss.ejs',
+      output: 'src/scss/_buttons.scss'
+    },
+    {
+      input: '_typography.scss.ejs',
+      output: 'src/scss/_typography.scss'
+    },
+    // Javascript files
     {
       input: 'src/js/_main.js.ejs',
       output: 'src/js/main.js'
@@ -146,9 +160,43 @@ module.exports = {
   craft: {
     dirsToCreate: (el) => [],
     filesToCopy: [
+      // Root files
       {
-        input: 'craft',
-        output: './'
+        input: 'craft/.env.example',
+        output: '.env.example'
+      },
+      {
+        input: 'craft/_composer.json',
+        output: 'composer.json'
+      },
+      {
+        input: 'craft/craft',
+        output: 'craft'
+      },
+      // Config Folder
+      {
+        input: 'craft/config',
+        output: 'config'
+      },
+      // Modules folder
+      {
+        input: 'craft/modules',
+        output: 'modules'
+      },
+      // Storage folder
+      {
+        input: 'craft/storage',
+        output: 'storage'
+      },
+      // Template folder
+      {
+        input: 'craft/templates',
+        output: 'templates'
+      },
+      // Web folder
+      {
+        input: 'craft/web',
+        output: 'web'
       }
     ],
     filesToRender: (el) => [

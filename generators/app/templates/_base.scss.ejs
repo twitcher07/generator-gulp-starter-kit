@@ -1,0 +1,67 @@
+<%_ if (includeTailwind) { -%>
+@layer base {
+
+    html {
+        @apply
+        text-black
+        antialiased
+        font-body;
+    }
+
+    ::selection {
+        @apply
+        bg-secondary
+        bg-opacity-50
+        text-primary;
+    }
+
+    // normalize placeholder
+    input::placeholder,
+    textarea::placeholder {
+        opacity: 1;
+    }
+
+    button:focus {
+        @apply
+        outline-none
+        ring;
+    }
+
+    img,
+    svg {
+        @apply
+        max-w-full
+        h-auto;
+    }
+    
+}
+<%_ } else { -%>
+html,
+body {
+    font-family: system-ui, BlinkMacSystemFont, -apple-system, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+<%_ } -%>
+<%_ if (includeAlpine && includeTailwind) { -%>
+
+// Hide Alpine.js components that are hidden by default
+[x-cloak=""] { 
+    @apply
+    hidden;
+}
+
+@screen mobile-nav-max {
+	[x-cloak="mobile"] {
+        @apply
+        hidden;
+	}
+}
+<%_ } else if (inlcudeAlpine && !includeTailwind) { -%>
+
+// Hide Alpine.js components that are hidden by default
+[x-cloak=""] { 
+    display: none;
+}
+<%_ } -%>
