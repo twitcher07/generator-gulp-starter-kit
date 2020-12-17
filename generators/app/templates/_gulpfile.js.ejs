@@ -136,10 +136,10 @@ gulp.task('export-tailwind-config', () => {
 });
 <%_ } -%>
 
-gulp.task('postcss', () => {
+gulp.task('postcss', (cb) => {
   const f = $.filter(['.tmp/css/**/*.css'], {restore: true});
 
-  return gulp.src(['.tmp/css/**/*.*'])
+  gulp.src(['.tmp/css/**/*.*'])
     .pipe(f)
     .pipe($.if(!isProd, $.sourcemaps.init({loadMaps: true})))
     .pipe($.postcss([
@@ -155,6 +155,8 @@ gulp.task('postcss', () => {
     .pipe($.size({showFiles: true}))
     .pipe(gulp.dest(dist_css))
     .pipe(browserSync.stream());
+
+  cb();
 });
 
 gulp.task('sass', gulp.series(<%_ if (includeTailwind) { -%>'export-tailwind-config', <%_ } -%>() => {
@@ -165,6 +167,7 @@ gulp.task('sass', gulp.series(<%_ if (includeTailwind) { -%>'export-tailwind-con
       .pipe($.sass().on('error', $.sass.logError))
     .pipe($.if(!isProd, $.sourcemaps.write()))
     .pipe(gulp.dest('.tmp/css'))
+    .pipe(browserSync.stream());
 }, 'postcss'));
 
 // Lint JavaScript
@@ -354,13 +357,13 @@ gulp.task('watch', (done) => {
   log('-> Watching files in /src folder...')
 
   <%_ if (projectType === 'html') { -%>
-  gulp.watch(src_asset_html, gulp.series('html', 'sass', 'inject-css-js')).on('change', browserSync.reload);
+  gulp.watch(src_asset_html, gulp.series('html', 'sass', 'inject-css-js')).on('done', browserSync.reload);
   <%_ } -%>
   <%_ if (includeTailwind) { -%>
-  gulp.watch('tailwind.config.js', gulp.series('postcss')).on('change', browserSync.reload);
+  gulp.watch('tailwind.config.js', gulp.series('postcss')).on('done', browserSync.reload);
   <%_ } -%>
-  gulp.watch(src_asset_scss, gulp.series('sass')).on('change', browserSync.reload);
-  gulp.watch(src_asset_js, gulp.series('js')).on('change', browserSync.reload);
+  gulp.watch(src_asset_scss, gulp.series('sass'));
+  gulp.watch(src_asset_js, gulp.series('js'));
   gulp.watch(src_asset_img, gulp.series('images')).on('change', browserSync.reload);
   gulp.watch(src_asset_font, gulp.series('fonts')).on('change', browserSync.reload);
 

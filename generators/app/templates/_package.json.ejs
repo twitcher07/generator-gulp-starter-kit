@@ -81,13 +81,13 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production gulp",
     "build:dev": "cross-env NODE_ENV=development gulp",
-    "critical-css": "cross-env NODE_ENV=development critical",
-    "critical-css:dist": "cross-env NODE_ENV=production critical",
+    "critical-css": "cross-env NODE_ENV=development gulp critical",
+    "critical-css:dist": "cross-env NODE_ENV=production gulp critical",
     "frontend": "gulp sass js",
     "frontend:dist": "cross-env NODE_ENV=production gulp sass js",
-    "serve": "cross-env NODE_ENV=development gulp serve", 
-    "serve:dist": "cross-env NODE_ENV=production gulp serve",
-    "start": "gulp serve",
+    "serve": "cross-env NODE_ENV=development gulp serve || exit 0", 
+    "serve:dist": "cross-env NODE_ENV=production gulp serve || exit 0",
+    "start": "gulp serve || exit 0",
     "tasks": "gulp --tasks"
   },
   "browserslist": [
