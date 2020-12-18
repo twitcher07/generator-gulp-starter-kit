@@ -1,5 +1,7 @@
-# generator-gulp-starter-kit [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
-> A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync. Options available for static html or to create a [roots/bedrock](https://roots.io/bedrock/) app using composer.
+# generator-gulp-starter-kit
+> A simple Gulp workflow that uses sass, Webpack, babel.js, image minification, and browsersync. Project type options available for static html, [roots/bedrock](https://roots.io/bedrock/), or [Craft CMS](https://craftcms.com/docs/3.x/).
+
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url]
 
 ## Installation
 
