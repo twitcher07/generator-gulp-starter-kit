@@ -6,6 +6,10 @@ module.exports = {
       output: '.editorconfig'
     },
     {
+      input: '_.npmrc',
+      output: '.npmrc'
+    },
+    {
       input: 'favicon260x260.png',
       output: 'src/favicon260x260.png'
     },
