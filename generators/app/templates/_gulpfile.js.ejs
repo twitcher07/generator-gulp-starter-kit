@@ -142,6 +142,7 @@ gulp.task('postcss', (cb) => {
   gulp.src(['.tmp/css/**/*.*'])
     .pipe(f)
     .pipe($.if(!isProd, $.sourcemaps.init({loadMaps: true})))
+    .pipe($.plumber())
     .pipe($.postcss([
           <%_ if (includeTailwind) { -%>
           require('tailwindcss'),
