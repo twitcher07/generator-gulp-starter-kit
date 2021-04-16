@@ -75,7 +75,7 @@ module.exports = {
     }
   ],
   bedrock: {
-    dirsToCreate: (el) => [`web/app/themes/${el.wordpressTemplateName}/static/`],
+    dirsToCreate: el => [`web/app/themes/${el.wordpressTemplateName}/static/`],
     filesToCopy: [
       {
         input: 'bedrock/.env.example',
@@ -142,7 +142,7 @@ module.exports = {
         output: 'web/app/uploads/.gitkeep'
       }
     ],
-    filesToRender: (el) => [
+    filesToRender: el => [
       {
         input: 'bedrock/_style.css.ejs',
         output: `web/app/themes/${el.wordpressTemplateName}/style.css`
@@ -155,10 +155,10 @@ module.exports = {
         input: '_env.ejs',
         output: '.env'
       }
-    ] 
+    ]
   },
   craft: {
-    dirsToCreate: (el) => [],
+    dirsToCreate: el => [],
     filesToCopy: [
       // Root files
       {
@@ -199,7 +199,7 @@ module.exports = {
         output: 'web'
       }
     ],
-    filesToRender: (el) => [
+    filesToRender: el => [
       {
         input: '_env.ejs',
         output: '.env'
