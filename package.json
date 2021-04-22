@@ -87,6 +87,9 @@
     "pretest": "gulp lint:ejs",
     "test": "jest"
   },
-  "repository": "twitcher07/generator-gulp-starter-kit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/twitcher07/generator-gulp-starter-kit.git"
+  },
   "license": "MIT"
 }

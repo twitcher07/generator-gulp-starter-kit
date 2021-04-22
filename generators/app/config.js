@@ -185,8 +185,8 @@ module.exports = {
       },
       // Storage folder
       {
-        input: 'craft/storage',
-        output: 'storage'
+        input: 'craft/storage/.gitkeep',
+        output: 'storage/.gitkeep'
       },
       // Template folder
       {
