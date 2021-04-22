@@ -1,6 +1,6 @@
 {
   "name": "generator-gulp-starter-kit",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A simple Gulp workflow that uses sass for css, Webpack, babel.js, image minification, and browsersync. Options available for static html, roots/bedrock app using composer, or install Craft CMS v3.",
   "homepage": "",
   "author": {
