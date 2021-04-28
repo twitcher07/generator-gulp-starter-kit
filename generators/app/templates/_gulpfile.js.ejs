@@ -57,14 +57,14 @@ src_generic_assets.forEach((el) => {
 function clean() {
 
   <%_ if (projectType === 'html') { -%>
-  const all_dist = [dist_css, dist_js, dist_img, dist_font, temp_folder].concat(dist_generic_assets);
+  const files_to_clean = [dist_css, dist_js, dist_img, dist_font, temp_folder].concat(dist_generic_assets);
   <%_ } else { -%>
-  const all_dist = dist_folder;
+  const files_to_clean = [ dist_folder, temp_folder ];
   <%_ } -%>
 
-  log.warn(`Deleting: ${all_dist}`);
+  log.warn('\x1b[33mStarting from fresh and deleting:\n', '\x1b[0m', files_to_clean.join('\n'));
 
-  return del(all_dist);
+  return del(files_to_clean);
 };
 
 gulp.task('generic-assets', (done) => {
