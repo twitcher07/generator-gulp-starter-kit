@@ -330,13 +330,17 @@ gulp.task('check-for-favicon-update', function(done) {
   done();
 });
 
-<%_ if (projectType === 'html') { -%>
 gulp.task('browser-sync', (done) => {
   browserSync.init({
+    <%_ if (projectType === 'html') { -%>
     server: {
       baseDir: [ dist_folder ]
     },
+    <%_ } else if (projectType === 'craft' || projectType === 'bedrock')  { -%>
+    proxy: '<%= siteUrl %>',
+    <%_ } -%>
     port: 3000,
+    open: true,
     snippetOptions: {
       rule: {
         match: /<head[^>]*>/i,
@@ -349,7 +353,6 @@ gulp.task('browser-sync', (done) => {
 
   done();
 });
-<%_ } -%>
 
 gulp.task('watch', (done) => {
   
@@ -368,6 +371,10 @@ gulp.task('watch', (done) => {
   gulp.watch(src_asset_img, gulp.series('images')).on('change', browserSync.reload);
   gulp.watch(src_asset_font, gulp.series('fonts')).on('change', browserSync.reload);
 
+  <%_ if (projectType === 'craft' || projectType === 'bedrock') { -%>
+  gulp.watch(pkg.paths.templatesFolder).on('change', browserSync.reload);
+  <%_ } -%>
+
   done();
 });
 
@@ -378,7 +385,7 @@ gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'html', 'i
 <%_ } else { -%>
 gulp.task('build', gulp.series(clean, gulp.parallel('generic-assets', 'service-worker', 'images', fonts, 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
 
-gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'images', fonts, 'sass', 'js'), 'inject-css-js', 'watch'));
+gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'images', fonts, 'sass', 'js'), 'inject-css-js', gulp.parallel('browser-sync', 'watch')));
 <%_ } -%>
 
 // Pages to generate critical css from

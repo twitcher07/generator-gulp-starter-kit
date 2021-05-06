@@ -9,9 +9,11 @@
     <%_ if (projectType === 'bedrock') { -%>
     "distFolder": "./web/app/themes/<%= wordpressTemplateName %>/static",
     "criticalCss": "./web/app/themes/<%= wordpressTemplateName %>/static/css/critical",
+    "templatesFolder": "./web/app/themes/<%= wordpressTemplateName %>/templates/**/*.{twig,html}",
     <%_ } else if(projectType === 'craft') { -%> 
     "distFolder": "./web/assets",
     "criticalCss": "./templates/_includes/css/critical",
+    "templatesFolder": "./templates/**/*.{twig,html}",
     <%_ } else { -%>
     "distFolder": "dist/",
     "criticalCss": "dist/css/critical",
