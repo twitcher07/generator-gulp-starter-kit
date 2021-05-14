@@ -1,0 +1,10 @@
+{
+  "extends": ["xo", "prettier"],
+  "env": {
+    "jest": true,
+    "node": true
+  },
+  "rules": {
+    "no-unused-vars": 1
+  }
+}

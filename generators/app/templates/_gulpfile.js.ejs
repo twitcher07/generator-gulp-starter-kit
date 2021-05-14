@@ -26,7 +26,9 @@ const gulp                      = require('gulp'),
       src_asset_js              = path.join(src_folder, '/js/**/*.js'),
       src_asset_img             = path.join(src_folder, '/images/**/*.+(png|jpg|jpeg|gif|svg|ico)'),
       src_asset_font            = path.join(src_folder, '/fonts/**/*.{eot,svg,ttf,woff,woff2}'),
+      <%_ if (projectType === 'html') { -%>
       src_asset_html            = path.join(src_folder, '/**/*.html'),
+      <%_ } -%>
       // Add any other assets that just need to be copied over to dist folder
       src_generic_assets        = [],
 
@@ -342,12 +344,21 @@ gulp.task('browser-sync', (done) => {
     port: 3000,
     open: true,
     snippetOptions: {
+      <%_ if (projectType === 'html') { -%>
       rule: {
         match: /<head[^>]*>/i,
         fn: function(snippet, match) {
           return match + snippet;
         }
       }
+      <%_ } else if (projectType === 'craft' || projectType === 'bedrock') { -%>
+      rule: {
+          match: /<\/body>/i,
+          fn: function (snippet, match) {
+              return snippet + match;
+          }
+      }
+      <%_ } -%>
     }
   });
 

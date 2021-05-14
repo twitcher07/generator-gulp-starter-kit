@@ -6,7 +6,7 @@ const helpers = require('yeoman-test');
 describe('generator-gulp-starter-kit:app', () => {
   beforeAll(() => {
     return helpers
-      .run(path.join(__dirname, '../generators/app'))
+      .run(path.join(__dirname, 'generators/app'))
       .withPrompts({ someAnswer: true });
   });
 

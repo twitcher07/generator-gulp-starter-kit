@@ -1,77 +1,78 @@
 <%_ if (projectType === 'bedrock') { -%>
-    DB_NAME='<%= dbName %>'
-    DB_USER='<%= dbUser %>'
-    DB_PASSWORD='<%= dbPassword %>'
-    
-    # Optionally, you can use a data source name (DSN)
-    # When using a DSN, you can remove the DB_NAME, DB_USER, DB_PASSWORD, and DB_HOST variables
-    # DATABASE_URL='mysql://database_user:database_password@database_host:database_port/database_name'
-    
-    # Optional variables
-    # DB_HOST='localhost'
-    # DB_PREFIX='wp_'
-    
-    WP_ENV='development'
-    WP_HOME='<%= siteUrl %>'
-    WP_SITEURL="${WP_HOME}/wp"
-    WP_DEBUG_LOG=/path/to/debug.log
-    
-    # Generate your keys here: https://roots.io/salts.html
-    AUTH_KEY='<%= generateSalt() %>'
-    SECURE_AUTH_KEY='<%= generateSalt() %>'
-    LOGGED_IN_KEY='<%= generateSalt() %>'
-    NONCE_KEY='<%= generateSalt() %>'
-    AUTH_SALT='<%= generateSalt() %>'
-    SECURE_AUTH_SALT='<%= generateSalt() %>'
-    LOGGED_IN_SALT='<%= generateSalt() %>'
-    NONCE_SALT='<%= generateSalt() %>'
-    <%_ } else if (projectType === 'craft') { -%>
-    # The environment Craft is currently running in (dev, staging, production, etc.)
-    ENVIRONMENT=dev
-    
-    # The application ID used to to uniquely store session and cache data, mutex locks, and more
-    APP_ID=
-    
-    # The secure key Craft will use for hashing and encrypting data
-    SECURITY_KEY= 
-    
-    # The database driver that will be used (mysql or pgsql)
-    DB_DRIVER=mysql
-    
-    # The database server name or IP address
-    DB_SERVER=127.0.0.1
-    
-    # The port to connect to the database with
-    DB_PORT=
-    
-    # The name of the database to select
-    DB_DATABASE=<%= dbName %>
-    
-    # The database username to connect with
-    DB_USER=<%= dbUser %>
-    
-    # The database password to connect with
-    DB_PASSWORD='<%= dbPassword %>'
-    
-    # The database schema that will be used (PostgreSQL only)
-    DB_SCHEMA=public
-    
-    # The prefix that should be added to generated table names (only necessary if multiple things are sharing the same database)
-    DB_TABLE_PREFIX=
-    
-    PRIMARY_SITE_URL=<%= siteUrl %>
-    
-    # System Email info
-    EMAIL_ADDRESS=
-    MAILGUN_EMAIL_DOMAIN=
-    MAILGUN_EMAIL_APIKEY=
-    
-    # Google Recaptcha
-    RECAPTCHA_SITE_KEY=
-    RECAPTCHA_SECRET_KEY=
-    
-    # Google Maps API key
-    GOOGLE_MAPS_API_KEY=
-    <%_ } -%>
+DB_NAME='<%= dbName %>'
+DB_USER='<%= dbUser %>'
+DB_PASSWORD='<%= dbPassword %>'
+
+# Optionally, you can use a data source name (DSN)
+# When using a DSN, you can remove the DB_NAME, DB_USER, DB_PASSWORD, and DB_HOST variables
+# DATABASE_URL='mysql://database_user:database_password@database_host:database_port/database_name'
+
+# Optional variables
+# DB_HOST='localhost'
+# DB_PREFIX='wp_'
+
+WP_ENV='development'
+WP_HOME='<%= siteUrl %>'
+WP_SITEURL="${WP_HOME}/wp"
+WP_DEBUG_LOG=/path/to/debug.log
+
+# Generate your keys here: https://roots.io/salts.html
+<%# TODO: Figure out why generateSalt() is not generating a random string with the same character count. -%>
+AUTH_KEY='<%= generateSalt() %>'
+SECURE_AUTH_KEY='<%= generateSalt() %>'
+LOGGED_IN_KEY='<%= generateSalt() %>'
+NONCE_KEY='<%= generateSalt() %>'
+AUTH_SALT='<%= generateSalt() %>'
+SECURE_AUTH_SALT='<%= generateSalt() %>'
+LOGGED_IN_SALT='<%= generateSalt() %>'
+NONCE_SALT='<%= generateSalt() %>'
+<%_ } else if (projectType === 'craft') { -%>
+# The environment Craft is currently running in (dev, staging, production, etc.)
+ENVIRONMENT=dev
+
+# The application ID used to to uniquely store session and cache data, mutex locks, and more
+APP_ID=
+
+# The secure key Craft will use for hashing and encrypting data
+SECURITY_KEY= 
+
+# The database driver that will be used (mysql or pgsql)
+DB_DRIVER=
+
+# The database server name or IP address
+DB_SERVER=
+
+# The port to connect to the database with
+DB_PORT=
+
+# The name of the database to select
+DB_DATABASE=
+
+# The database username to connect with
+DB_USER=
+
+# The database password to connect with
+DB_PASSWORD=
+
+# The database schema that will be used (PostgreSQL only)
+DB_SCHEMA=public
+
+# The prefix that should be added to generated table names (only necessary if multiple things are sharing the same database)
+DB_TABLE_PREFIX=
+
+PRIMARY_SITE_URL=<%= siteUrl %>
+
+# System Email info
+EMAIL_ADDRESS=
+MAILGUN_EMAIL_DOMAIN=
+MAILGUN_EMAIL_APIKEY=
+
+# Google Recaptcha
+RECAPTCHA_SITE_KEY=
+RECAPTCHA_SECRET_KEY=
+
+# Google Maps API key
+GOOGLE_MAPS_API_KEY=
+<%_ } -%>
         
     
