@@ -9,6 +9,7 @@ const gulp                      = require('gulp'),
       fs                        = require('fs'),
       through2                  = require('through2'),
       log                       = require('fancy-log'),
+      colors                    = require('colors'),
       path                      = require('path'),
       del                       = require('del'),
       webpack                   = require('webpack'),
@@ -42,6 +43,79 @@ const gulp                      = require('gulp'),
 
       critical_css              = pkg.paths.criticalCss;
 
+// Set colors node logging color theme
+colors.setTheme({
+    silly: 'rainbow',
+    input: 'grey',
+    verbose: 'cyan',
+    prompt: 'grey',
+    info: 'green',
+    infoBg: ['bgGreen', 'white'],
+    data: 'grey',
+    help: 'magenta',
+    helpBg: ['bgMagenta', 'white'],
+    warn: 'yellow',
+    warnBg: ['bgYellow', 'black'],
+    debug: 'magenta',
+    error: 'red',
+    errorBg: ['white', 'bgRed']
+});
+
+
+// log and format message related to any build tasks
+function buildLog(_log) {
+
+    // let source = log.source || undefined;
+    let message = '';
+    let sourceInfo = ' => '.data;
+
+    switch(_log.type) { 
+
+        case 'error':
+            message += '[BUILD ERROR]'.errorBg.bold;
+            sourceInfo += colors.error.bold(_log.source);
+            break;
+
+        case 'warning':
+            message += '[BUILD WARNING]'.warnBg.bold;
+            sourceInfo += colors.warn.bold(_log.source);
+            break;
+
+        case 'info':
+            message += '[BUILD INFO]'.infoBg.bold;
+            sourceInfo += colors.info.bold(_log.source);
+            break;
+
+        default:
+            message += '[BUILD MESSAGE]'.helpBg.bold;
+            sourceInfo += colors.help.bold(_log.source);
+    }
+
+    sourceInfo += ' responded with:\n'.data;
+
+    message += _log.source ? sourceInfo : '';
+    message += _log.message ? _log.message : '';
+
+    switch(_log.type) { 
+
+        case 'error':
+            log.error(message);
+            break;
+
+        case 'warning':
+            log.warn(message);
+            break;
+
+        case 'info': 
+            log.info(message);
+            break;
+
+        default:
+            log.info(message);
+    }
+}
+
+
 const isProd = process.env.NODE_ENV === 'production';
 
 //for busting cache in serviceworker through version
@@ -64,7 +138,11 @@ function clean() {
   const files_to_clean = [ dist_folder, temp_folder ];
   <%_ } -%>
 
-  log.warn('\x1b[33mStarting from fresh and deleting:\n', '\x1b[0m', files_to_clean.join('\n'));
+  buildLog({
+    type: 'info',
+    source: 'gulp clean',
+    message: `Deleting:\n ${colors.info(files_to_clean)}`
+  });
 
   return del(files_to_clean);
 };
@@ -142,9 +220,18 @@ gulp.task('postcss', (cb) => {
   const f = $.filter(['.tmp/css/**/*.css'], {restore: true});
 
   gulp.src(['.tmp/css/**/*.*'])
+    .pipe($.plumber({
+      errorHandler: function(err) {
+        buildLog({ 
+          type: 'error',
+          source: err.plugin, 
+          message: err.message 
+        });
+        this.emit('end');
+      }
+    }))
     .pipe(f)
     .pipe($.if(!isProd, $.sourcemaps.init({loadMaps: true})))
-    .pipe($.plumber())
     .pipe($.postcss([
           <%_ if (includeTailwind) { -%>
           require('tailwindcss'),
@@ -164,10 +251,19 @@ gulp.task('postcss', (cb) => {
 
 gulp.task('sass', gulp.series(<%_ if (includeTailwind) { -%>'export-tailwind-config', <%_ } -%>() => {
   return gulp.src(src_asset_scss)
-    .pipe($.if(!isProd, $.sourcemaps.init()))
-      .pipe($.plumber())
-      .pipe($.dependents())
-      .pipe($.sass().on('error', $.sass.logError))
+    .pipe($.plumber({
+      errorHandler: function(err) {
+        buildLog({ 
+          type: 'error',
+          source: err.plugin, 
+          message: err.message 
+        });
+        this.emit('end');
+      }
+    }))
+    .pipe($.dependents())
+    .pipe($.if(!isProd, $.sourcemaps.init()))      
+    .pipe($.sass())
     .pipe($.if(!isProd, $.sourcemaps.write()))
     .pipe(gulp.dest('.tmp/css'))
     .pipe(browserSync.stream());
@@ -224,6 +320,17 @@ gulp.task('js', gulp.series('lint', () => {
     .pipe(browserSync.stream());
 }));
 
+
+// ensure js task is finished and reload browsersync for JS
+gulp.task('js:watch', gulp.series('js', (done) => {
+
+    browserSync.reload();
+
+    done();
+
+}));
+
+
 // service worker compile and copy
 gulp.task('service-worker', function () {
   return gulp.src(path.join(src_folder, 'sw.js'))
@@ -240,7 +347,7 @@ gulp.task('service-worker', function () {
 // package (see the check-for-favicon-update task below).
 
 // File where the favicon markups are stored
-const favicon = path.join(src_folder, 'favicon260x260.png');
+const favicon = pkg.favicon.image;
 const FAVICON_DATA_FILE = path.join(__dirname, 'faviconData.json');
 const theme_color = pkg.favicon.themeColor;
 const favicon_bg = pkg.favicon.backgroundColor;
@@ -338,11 +445,12 @@ gulp.task('browser-sync', (done) => {
     server: {
       baseDir: [ dist_folder ]
     },
+    open: true,
     <%_ } else if (projectType === 'craft' || projectType === 'bedrock')  { -%>
     proxy: '<%= siteUrl %>',
+    open: false,
     <%_ } -%>
     port: 3000,
-    open: true,
     snippetOptions: {
       <%_ if (projectType === 'html') { -%>
       rule: {
@@ -369,16 +477,19 @@ gulp.task('watch', (done) => {
   
   const watchVendor = [];
 
-  log('-> Watching files in /src folder...')
+  buildLog({
+    source: 'watch task',
+    message: '          -> Watching files in /src folder...'.magenta.bold
+  });
 
   <%_ if (projectType === 'html') { -%>
   gulp.watch(src_asset_html, gulp.series('html', 'sass', 'inject-css-js')).on('done', browserSync.reload);
   <%_ } -%>
   <%_ if (includeTailwind) { -%>
-  gulp.watch('tailwind.config.js', gulp.series('postcss')).on('done', browserSync.reload);
+  gulp.watch('tailwind.config.js', gulp.series('sass'));
   <%_ } -%>
   gulp.watch(src_asset_scss, gulp.series('sass'));
-  gulp.watch(src_asset_js, gulp.series('js'));
+  gulp.watch(src_asset_js, gulp.series('js:watch'));
   gulp.watch(src_asset_img, gulp.series('images')).on('change', browserSync.reload);
   gulp.watch(src_asset_font, gulp.series('fonts')).on('change', browserSync.reload);
 
@@ -448,10 +559,23 @@ gulp.task('critical', gulp.series('build', function (cb) {
   var poolPromise = pool.start();
 
   poolPromise.then(function () {
-    console.log('All critical css files generated');
+    
+    buildLog({
+      type: 'info',
+      source: 'critical css task',
+      message: colors.info('All critical css files generated')
+    });
+
     cb();
+
   }, function (error) {
-    console.log('Failed to generate all/some critical css files: ' + error.message)
+    
+    buildLog({
+      type: 'error',
+      source: error.plugin,
+      message: 'Failed to generate all/some critical css files: ' + error.message
+    });
+
   })
 
 }));
