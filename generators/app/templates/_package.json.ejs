@@ -90,9 +90,9 @@
     "critical-css:dist": "cross-env NODE_ENV=production gulp critical",
     "frontend": "gulp sass js",
     "frontend:dist": "cross-env NODE_ENV=production gulp sass js",
-    "serve": "cross-env NODE_ENV=development gulp serve || exit 0", 
-    "serve:dist": "cross-env NODE_ENV=production gulp serve || exit 0",
-    "start": "gulp serve || exit 0",
+    "serve": "cross-env NODE_ENV=development npm run gulp-serve", 
+    "serve:dist": "cross-env NODE_ENV=production npm run gulp-serve",
+    "gulp-serve": "gulp serve",
     "tasks": "gulp --tasks"
   },
   "browserslist": [
