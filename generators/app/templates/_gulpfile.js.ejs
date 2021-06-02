@@ -62,7 +62,7 @@ colors.setTheme({
 });
 
 
-// log and format message related to any build tasks
+// Log and format message related to any build tasks
 function buildLog(_log) {
 
     // let source = log.source || undefined;
@@ -115,21 +115,27 @@ function buildLog(_log) {
     }
 }
 
-
+// Test if NODE_ENV production
 const isProd = process.env.NODE_ENV === 'production';
 
-//for busting cache in serviceworker through version
+
+// For busting cache in serviceworker through version number
 function makeid() {
   return Math.random().toString(36).substr(2, 9);
 }
 
 const dist_generic_assets = [];
 
+// Copy paths in src_generic_assets, add to dist_generic_assets 
+// array but replace src_folder in path to be dist_folder. (e.g. 
+// "/src/videos/loremipsum.mp4" becomes "/dist/videos/loremipsum.mp4")
+// This is used to clean files copied over from 'generic-assets' task. 
 src_generic_assets.forEach((el) => {
   dist_generic_assets.push(el.replace(src_folder, dist_folder));
 });
 
-// Clean generated assets
+
+// Clean frontend assets that were generated from gulp workflow
 function clean() {
 
   <%_ if (projectType === 'html') { -%>
@@ -145,9 +151,14 @@ function clean() {
   });
 
   return del(files_to_clean);
-};
+}
 
-gulp.task('generic-assets', (done) => {
+exports.clean = clean;
+
+
+// Copy over any generic assets that are in src_generic_assets to dist_folder
+function genericAssets(done) {
+
   if(src_generic_assets.length > 0) {
     gulp.src(src_generic_assets, {
       allowEmpty: true,
@@ -155,9 +166,13 @@ gulp.task('generic-assets', (done) => {
       .pipe(gulp.dest(dist_folder))
       .pipe(browserSync.stream())
   }
-  done();
-});
 
+  done();
+
+}
+
+
+// Copy and run images through gulp-imagemin then output to dist_img
 gulp.task('images', () => {
   return gulp.src(src_asset_img, { since: gulp.lastRun('images') })
     .pipe($.plumber())
@@ -175,14 +190,19 @@ gulp.task('images', () => {
     .pipe(browserSync.stream());
 });
 
-function fonts(cb) {
+
+function fonts(done) {
   gulp.src(src_asset_font, {since: gulp.lastRun('fonts')})
     .pipe(gulp.dest(dist_font));
 
-  cb();
+  done();
 }
 
+exports.fonts = fonts;
+
 <%_ if (projectType === 'html') { -%>
+
+
 gulp.task('html', () => {
   return gulp.src(src_asset_html, {
       base: src_folder,
@@ -192,31 +212,32 @@ gulp.task('html', () => {
 });
 <%_ } -%>
 
-gulp.task('inject-css-js', () => {
+function injectCssJss(done) {
   const sources = gulp.src([path.join(dist_css, '**/*.css'), path.join(dist_js, '**/*.js')], {read: false});
 
-  return gulp.src(dist_html)
+  gulp.src(dist_html)
     .pipe($.inject(sources, {
       ignorePath: dist_folder
     }))
     .pipe(gulp.dest(dist_folder))
     .pipe(browserSync.stream());
-});
+
+  done();
+}
 <%_ if (includeTailwind) { -%>
 
-gulp.task('export-tailwind-config', () => {
-  return gulp
-      .src('./tailwind.config.js')
+function exportTailwindConfig() {
+  return gulp.src('./tailwind.config.js')
       .pipe($.tailwindcssExportConfig({
           output: '_tailwind.config.scss',
           format: 'scss',
           quotedKeys: true,
       }))
       .pipe(gulp.dest(path.join(src_folder, '/scss/.tmp/imports')));
-});
+}
 <%_ } -%>
 
-gulp.task('postcss', (cb) => {
+function postcss(done) {
   const f = $.filter(['.tmp/css/**/*.css'], {restore: true});
 
   gulp.src(['.tmp/css/**/*.*'])
@@ -246,39 +267,41 @@ gulp.task('postcss', (cb) => {
     .pipe(gulp.dest(dist_css))
     .pipe(browserSync.stream());
 
-  cb();
-});
+  done();
+}
 
-gulp.task('sass', gulp.series(<%_ if (includeTailwind) { -%>'export-tailwind-config', <%_ } -%>() => {
+
+function sass() {
   return gulp.src(src_asset_scss)
-    .pipe($.plumber({
-      errorHandler: function(err) {
-        buildLog({ 
-          type: 'error',
-          source: err.plugin, 
-          message: err.message 
-        });
-        this.emit('end');
-      }
-    }))
     .pipe($.dependents())
     .pipe($.if(!isProd, $.sourcemaps.init()))      
-    .pipe($.sass())
+    .pipe($.sass().on('error', function(err) {
+      buildLog({ 
+        type: 'error',
+        source: err.plugin, 
+        message: err.message 
+      })
+      this.emit('end');
+    }))
     .pipe($.if(!isProd, $.sourcemaps.write()))
-    .pipe(gulp.dest('.tmp/css'))
-    .pipe(browserSync.stream());
-}, 'postcss'));
+    .pipe(gulp.dest('.tmp/css'));
+}
+
+
+gulp.task('css', gulp.series(<%_ if (includeTailwind) { -%>exportTailwindConfig, <% } -%>sass, postcss));
+
 
 // Lint JavaScript
-gulp.task('lint', () => {
-  return gulp.src(src_asset_js, { since: gulp.lastRun('lint') })
+function lintJs() {
+  return gulp.src(src_asset_js, { since: gulp.lastRun(lintJs) })
     .pipe($.eslint())
     .pipe($.eslint.format())
     .pipe($.if(!browserSync.active, $.eslint.failAfterError()))
-});
+}
 
-gulp.task('js', gulp.series('lint', () => {
-  return gulp.src(src_asset_js, { since: gulp.lastRun('js') })
+
+function webpackJs() {
+  return gulp.src(src_asset_js, { since: gulp.lastRun(webpackJs) })
     .pipe($.plumber())
     .pipe(webpackStream({
       mode: isProd ? 'production' : 'development',
@@ -316,19 +339,10 @@ gulp.task('js', gulp.series('lint', () => {
         ]
       }
     }, webpack ))
-    .pipe(gulp.dest(dist_js))
-    .pipe(browserSync.stream());
-}));
+    .pipe(gulp.dest(dist_js));
+}
 
-
-// ensure js task is finished and reload browsersync for JS
-gulp.task('js:watch', gulp.series('js', (done) => {
-
-    browserSync.reload();
-
-    done();
-
-}));
+gulp.task('js', gulp.series(lintJs, webpackJs));
 
 
 // service worker compile and copy
@@ -415,6 +429,7 @@ gulp.task('generate-favicon', function(done) {
   });
 });
 
+
 // Inject the favicon markups in your HTML pages. You should run
 // this task whenever you modify a page. You can keep this task
 // as is or refactor your existing HTML pipeline.
@@ -423,6 +438,7 @@ gulp.task('inject-favicon-markups', function() {
     .pipe($.realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(FAVICON_DATA_FILE)).favicon.html_code))
     .pipe(gulp.dest(dist_folder));
 });
+
 
 // Check for updates on RealFaviconGenerator (think: Apple has just
 // released a new Touch icon along with the latest version of iOS).
@@ -438,6 +454,7 @@ gulp.task('check-for-favicon-update', function(done) {
 
   done();
 });
+
 
 gulp.task('browser-sync', (done) => {
   browserSync.init({
@@ -473,25 +490,34 @@ gulp.task('browser-sync', (done) => {
   done();
 });
 
+
+// Reload browsersync and fire callback.
+function reloadAndDone(done) {
+
+  browserSync.reload();
+
+  done();
+
+}
+
+
 gulp.task('watch', (done) => {
   
-  const watchVendor = [];
-
   buildLog({
     source: 'watch task',
     message: '          -> Watching files in /src folder...'.magenta.bold
   });
 
   <%_ if (projectType === 'html') { -%>
-  gulp.watch(src_asset_html, gulp.series('html', 'sass', 'inject-css-js')).on('done', browserSync.reload);
+  gulp.watch(src_asset_html, gulp.series('html', 'css', injectCssJss)).on('done', browserSync.reload);
   <%_ } -%>
   <%_ if (includeTailwind) { -%>
-  gulp.watch('tailwind.config.js', gulp.series('sass'));
+  gulp.watch('tailwind.config.js', gulp.series('css'));
   <%_ } -%>
-  gulp.watch(src_asset_scss, gulp.series('sass'));
-  gulp.watch(src_asset_js, gulp.series('js:watch'));
-  gulp.watch(src_asset_img, gulp.series('images')).on('change', browserSync.reload);
-  gulp.watch(src_asset_font, gulp.series('fonts')).on('change', browserSync.reload);
+  gulp.watch(src_asset_scss, gulp.series('css'));
+  gulp.watch(src_asset_js, gulp.series('js', reloadAndDone));
+  gulp.watch(src_asset_img, gulp.series('images', reloadAndDone));
+  gulp.watch(src_asset_font, gulp.series('fonts', reloadAndDone));
 
   <%_ if (projectType === 'craft' || projectType === 'bedrock') { -%>
   gulp.watch(pkg.paths.templatesFolder).on('change', browserSync.reload);
@@ -500,21 +526,55 @@ gulp.task('watch', (done) => {
   done();
 });
 
-<%_ if (projectType === 'html') { -%>
-gulp.task('build', gulp.series(clean, gulp.parallel('generic-assets', 'html', 'service-worker', 'images', fonts, 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
+gulp.task('build', 
+  gulp.series(
+    clean, 
+    gulp.parallel(
+      genericAssets,
+      <%_ if (projectType === 'html') { -%>
+      'html',
+      <%_ } -%>
+      'service-worker', 
+      'images', 
+      fonts, 
+      'css', 
+      'js', 
+      'generate-favicon'
+    )<% if (projectType === 'html') { %>, 
+    injectCssJss,
+    'inject-favicon-markups'
+    <%_ } -%>
+  )
+);
 
-gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'html', 'images', fonts, 'sass', 'js'), 'inject-css-js', gulp.parallel('browser-sync', 'watch')));
-<%_ } else { -%>
-gulp.task('build', gulp.series(clean, gulp.parallel('generic-assets', 'service-worker', 'images', fonts, 'sass', 'js', 'generate-favicon'), 'inject-css-js'));
-
-gulp.task('serve', gulp.series(clean, gulp.parallel('generic-assets', 'images', fonts, 'sass', 'js'), 'inject-css-js', gulp.parallel('browser-sync', 'watch')));
-<%_ } -%>
+gulp.task('serve',
+  gulp.series(
+    clean,
+    gulp.parallel(
+      genericAssets, 
+      <%_ if (projectType === 'html') { -%>
+      'html',
+      <%_ } -%>
+      'images', 
+      fonts, 
+      'css', 
+      'js'
+    ),
+    <%_ if (projectType === 'html') { -%>
+    injectCssJss,
+    <%_ } -%>
+    gulp.parallel(
+      'browser-sync', 
+      'watch'
+    )
+  )
+);
 
 // Pages to generate critical css from
 const criticalPages = pkg.paths.criticalPages;
 
 // Generate critical css based on path to pages
-gulp.task('critical', gulp.series('build', function (cb) {
+gulp.task('critical', gulp.series('build', function (done) {
 
   // constructing array out of list-object returned by config.yaml so I can pop each item.
   var pages = Object.keys(criticalPages).map(function (val) {
@@ -566,7 +626,7 @@ gulp.task('critical', gulp.series('build', function (cb) {
       message: colors.info('All critical css files generated')
     });
 
-    cb();
+    done();
 
   }, function (error) {
     
@@ -581,7 +641,3 @@ gulp.task('critical', gulp.series('build', function (cb) {
 }));
 
 gulp.task('default', gulp.series('build'));
-
-exports.fonts = fonts;
-exports.clean = clean;
-
