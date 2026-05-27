@@ -33,7 +33,7 @@
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.0",
     "yeoman-assert": "^3.1.0",
-    "yeoman-test": "^1.7.0"
+    "yeoman-test": "^11.5.2"
   },
   "engines": {
     "node": ">= 14"
@@ -42,7 +42,7 @@
     "chalk": "^2.1.0",
     "lodash": "^4.17.19",
     "mkdirp": "^1.0.4",
-    "yeoman-generator": "^2.0.1",
+    "yeoman-generator": "^8.2.2",
     "yosay": "^2.0.1"
   },
   "jest": {
